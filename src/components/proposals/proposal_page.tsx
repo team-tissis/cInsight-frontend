@@ -70,6 +70,7 @@ const ProposalPage = (props: Props) => {
     proposerEoa: "nisshimo",
   });
   const putProposalApi = usePutProposalApi();
+  const [postProposal, setPostProposal] = useState<number>(0)
 
   useEffect(() => {
     proposalApi.execute(Number(params.id));
@@ -88,7 +89,7 @@ const ProposalPage = (props: Props) => {
       setVotes(await getAccountVotingInfo("votes", Number(params.id)));
       setDebug(await getAccountVotingInfo("canCancel", Number(params.id)));
     })();
-  }, []);
+  }, [postProposal]);
 
   useEffectSkipFirst(() => {
     globalState.setLoading(proposalApi.loading);
@@ -228,8 +229,9 @@ const ProposalPage = (props: Props) => {
                 title="投票"
                 open={voteModalOpen}
                 onCancel={() => setVoteModalOpen(false)}
-                onSubmit={(form: Form<VoteForm>) => {
-                  vote(proposal()?.web3Id, form.object.voteResult, "");
+                onSubmit={async (form: Form<VoteForm>) => {
+                  await vote(proposal()?.web3Id, form.object.voteResult, "");
+                  setPostProposal((prev) => prev + 1);
                 }}
               />
             </div>

@@ -107,22 +107,25 @@ export async function fetchMintedTokenNumber() {
 }
 
 export async function mint(address) {
-  // mint
-  let mintIndex;
-  if (address === undefined) {
-    const { contract } = await getContract("Bonfire");
-    const options = { value: ethers.utils.parseEther("0.1") };
-    mintIndex = contract.mint(options);
+  try {
+    let mintIndex;
+    if (address === undefined) {
+      // mint
+      const { contract } = await getContract("Bonfire");
+      const options = { value: ethers.utils.parseEther("0.1") };
+      mintIndex = await contract.mint(options);
+    } else {
+      // mint with referral
+      const { contract } = await getContract("Bonfire", sbtAbi);
+      const options = { value: ethers.utils.parseEther("0.1") };
+      mintIndex = await contract.mintWithReferral(address, options);
+    }
+    console.log({mintIndex})
+    return true
+  } catch (e) {
+    console.log({mint_error: e})
+    return false
   }
-  // mint with referral
-  else {
-    const { contract } = await getContract("Bonfire", sbtAbi);
-    const options = { value: ethers.utils.parseEther("0.1") };
-    mintIndex = contract.mintWithReferral(address, options);
-  }
-
-  console.log({ mintIndex: mintIndex });
-
   //TODO; minted listen
 }
 

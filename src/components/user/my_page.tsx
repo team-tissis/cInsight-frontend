@@ -3,6 +3,7 @@ import {
   Col,
   Form,
   PageHeader,
+  notification,
   Row,
   Skeleton,
   Space,
@@ -37,13 +38,13 @@ type Props = {
 
 export const MyPage = (props: Props) => {
   // const checkHasSbtApi = useCheckHasSbtApi();
-
+  const [postForm, setPostForm] = useState<number>(0)
   const [hasSbt, setHasSbt] = useState();
   useEffect(() => {
     (async function () {
       setHasSbt(await fetchConnectedAccountInfo("gradeOf"));
     })();
-  }, []);
+  }, [postForm]);
 
   // useEffect(() => {
   //   checkHasSbtApi.execute();
@@ -71,7 +72,7 @@ export const MyPage = (props: Props) => {
     >
       {/* {checkHasSbtApi.response?.hasSbt ? ( */}
       {/* <Skeleton loading={hasSbt === undefined}> */}
-      {hasSbt != 0 ? <UserPageContent isMyPage /> : <MyPageWithoutSbt />}
+      {hasSbt != 0 ? <UserPageContent isMyPage /> : <MyPageWithoutSbt setPostForm={setPostForm}/>}
       {/* </Skeleton> */}
     </PageHeader>
   );
@@ -79,7 +80,11 @@ export const MyPage = (props: Props) => {
 
 export default withRouter(MyPage);
 
-const MyPageWithoutSbt = () => {
+type MyPageWithoutSbtProps = {
+  setPostForm: any;
+};
+
+const MyPageWithoutSbt = (props: MyPageWithoutSbtProps) => {
   const [openCreateUserSbtForm, setOpenCreateUserSbtForm] = useState(false);
   const createUserSbtForm = useForm<User>({});
   const [account, setAccount] = useState<string | undefined>(undefined);
@@ -101,12 +106,25 @@ const MyPageWithoutSbt = () => {
         open={openCreateUserSbtForm}
         form={createUserSbtForm}
         onCancel={() => setOpenCreateUserSbtForm(false)}
-        onOk={() => {
+        onOk={async () => {
           console.log({ user: account });
           // postする処理
           try {
-            mint(createUserSbtForm.object.referencerAddress);
+            const success: boolean  = await mint(createUserSbtForm.object.referencerAddress);
+            if(!success) {
+              notification.config({
+                maxCount: 1,
+              });
+              notification["error"]({
+                message: "エラーが発生したため、ミントできませんでした。\n紹介者アドレスが有効か再度確認してください。",
+                style: {
+                  backgroundColor: "#FFF2F0",
+                },
+              });
+              throw new Error('エラーが発生したため、ミントできませんでした。紹介者アドレスが有効か再度確認してください。')
+            }
             createUserSbtForm.updateObject("eoa", account);
+            props.setPostForm((prev: number) => prev + 1)
           } catch (e) {
             console.error(e);
           }
