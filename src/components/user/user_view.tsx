@@ -16,10 +16,10 @@ import { User } from "entities/user";
 import { useEffect, useState } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
 
-export const UserProfileView = (user: User) => {
+export const UserProfileView = (user: User, userUrl?: string) => {
   return (
     <Space size={20}>
-      {AvatorView(user.eoa, 180)}
+      {AvatorViewUrl(userUrl, 180)}
       <Descriptions
         labelStyle={{ width: 140 }}
         style={{ minWidth: 400 }}
@@ -63,20 +63,23 @@ export const UserListView = (user: User, loading = false) => {
 };
 
 export const AvatorView = (address?: string, size?: number) => {
-  const [src, setSrc] = useState<string | undefined>(address);
+  const [src, setSrc] = useState<string | undefined>();
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
   useEffect(() => {
-    (async () => {
-      const srcResponse = await fetchAccountImageUrl(address);
-      setSrc(srcResponse);
-      // setSrc(
-      //   "https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg"
-      // );
-    })();
+    (async function () { setSrc(await fetchAccountImageUrl(address)) })();
   }, []);
   return src === undefined ? (
     <Spin indicator={antIcon} />
   ) : (
     <Avatar src={src} size={size} />
+  );
+};
+
+export const AvatorViewUrl = (url?: string, size?: number) => {
+  const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
+  return url === undefined ? (
+    <Spin indicator={antIcon} />
+  ) : (
+    <Avatar src={url} size={size} />
   );
 };
