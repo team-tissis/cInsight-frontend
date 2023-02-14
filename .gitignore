@@ -13,6 +13,7 @@
 
 # misc
 .DS_Store
+.env.development
 .env.local
 .env.development.local
 .env.test.local
@@ -26,4 +27,3 @@ yarn-error.log*
 src/api/Sbt.sol/
 src/api/SkinNft.sol/
 
-.env.development
