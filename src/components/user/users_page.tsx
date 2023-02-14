@@ -1,33 +1,16 @@
-import { Flex } from "components/shared/flex";
 import { User, UserSearchForm } from "entities/user";
 import React, { useContext, useEffect, useState } from "react";
 import { TableParams } from "utils/table_params";
 import { GlobalStateContext } from "contexts/global_state_context";
 import {
-  Avatar,
-  Button,
-  Card,
   List,
   PageHeader,
-  Skeleton,
-  Space,
-  Tabs,
-  Tag,
 } from "antd";
-import { sleep } from "utils/util";
 import { useFetchUsersApi } from "api/user";
 import { useEffectSkipFirst, useForm } from "utils/hooks";
-import { LikeOutlined, MessageOutlined, StarOutlined } from "@ant-design/icons";
 
 import { ContentBlock } from "components/shared/content_block";
 
-import FullCalendar from "@fullcalendar/react";
-import { DatesSetArg } from "@fullcalendar/common";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
-import { CalendarOutlined, TableOutlined } from "@ant-design/icons";
-import moment from "moment";
 import * as H from "history";
 import { withRouter } from "react-router";
 import { UserListView } from "./user_view";
