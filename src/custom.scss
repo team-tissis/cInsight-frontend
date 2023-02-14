@@ -6,11 +6,9 @@ $secondary: #d4d4d4;
 $info: #c1cc6a;
 // Import Bootstrap and its default variables
 
-$sidebar-bg-color: linear-gradient(
-  130deg,
-  rgb(0, 128, 200) 40%,
-  rgb(215, 227, 118) 100%
-);
+$sidebar-bg-color: linear-gradient(130deg,
+    rgb(0, 128, 200) 40%,
+    rgb(215, 227, 118) 100%);
 $submenu-bg-color: #fff0 !default;
 $submenu-bg-color-collapsed: #fff0 !default;
 $sidebar-color: white;
