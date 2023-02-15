@@ -49,6 +49,7 @@ import { CommentSearchForm } from "entities/comment";
 import { addFavos } from "api/fetch_sol/sbt";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
 import { usePostFavoriteApi, Favorite, FavoriteForm } from "api/favorite";
+import { useFetchUserByAccountAddressApi } from "api/user";
 
 type Props = {
   history: H.History;
@@ -59,6 +60,7 @@ const LecturePage = (props: Props) => {
   const params = useParams<{ id: string }>();
   const lectureApi = useFetchLectureApi();
   const searchForm = useForm<CommentSearchForm>({});
+  const newFaoriteForm = useForm<FavoriteForm>({});
   const globalState = useContext(GlobalStateContext);
   const [movieVisible, setMovieVisible] = useState(false);
   const [openPurchaseModal, setOpenPurchaseModal] = useState(false);
@@ -67,13 +69,21 @@ const LecturePage = (props: Props) => {
   const [applyStatus, setApplyStatus] = useState<
     "open" | "allplyed" | "closed"
   >("allplyed");
+  const [forceReloading, setForceReloading] = useState(0);
   const editLectureForm = useForm<Lecture>({});
   const putLectureApi = usePutLectureApi();
   const deleteLectureApi = useDeleteLectureApi();
+
+  const userApiByAccountAddress = useFetchUserByAccountAddressApi();
   const [accountAddress, setAccountAddress] = useState<string | undefined>(
     undefined
   );
   const postFavoriteApi = usePostFavoriteApi();
+
+  useEffect(() => {
+    lectureApi.execute(Number(params.id));
+  }, [forceReloading]);
+
 
   useEffect(() => {
     // ToDo1: アカウントアドレスを取得
@@ -81,11 +91,8 @@ const LecturePage = (props: Props) => {
         const _accountAddress = await getCurrentAccountAddress();
         console.log({自分のアカウントアドレス: _accountAddress})
         setAccountAddress(_accountAddress);
+        userApiByAccountAddress.execute(_accountAddress!);
     })();
-  }, []);
-
-  useEffect(() => {
-    lectureApi.execute(Number(params.id));
   }, []);
 
   useEffectSkipFirst(() => {
@@ -120,18 +127,15 @@ const LecturePage = (props: Props) => {
     editLectureForm.set(() => lecture() ?? {});
   };
   
-  // const newFaoriteForm = useForm<FavoriteForm>({lecture_id: lecture()?.id, user_id: accountAddress});
-  const newFaoriteForm = useForm<FavoriteForm>({lecture_id: '1', eoa: '0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc'});
-  
-  function handleAddFavos(){
-    // newFaoriteForm.updateObject( "lecture_id", lecture()?.id );
-    // newFaoriteForm.updateObject( "user_id", accountAddress );
-    // addFavos(lecture()?.author?.eoa, FAVO_AMOUNT);
-    postFavoriteApi.execute(newFaoriteForm);
-  }
 
-  console.log(editLectureForm.object);
-  console.log({勉強会: lecture()})
+  const handleAddFavos = () => {
+    const formVal : FavoriteForm = {lecture_id: lecture()?.id, eoa: userApiByAccountAddress.response.user.eoa}
+    newFaoriteForm.set(formVal);
+    // DBへのいいねの反映
+    postFavoriteApi.execute(newFaoriteForm);
+    // スマコンへのいいねの反映
+    // addFavos(lecture()?.author?.eoa, FAVO_AMOUNT);
+  };
 
   return (
     <PageHeader
@@ -310,7 +314,8 @@ const LecturePage = (props: Props) => {
               <Space direction="vertical">
                 <Statistic
                   title="いいね"
-                  value={lecture()?.nLike ?? 0}
+                  // value={lecture()?.nLike ?? 0}
+                  value={lecture()?.favo ?? 0}
                   prefix={
                     <LikeOutlined
                       style={{
@@ -319,17 +324,20 @@ const LecturePage = (props: Props) => {
                     />
                   }
                 />
+                { lecture()?.id }
+                { userApiByAccountAddress.response.user.eoa }
                 <Button
                   key={"lecture like button"}
                   type="primary"
                   disabled={(getLectureStatus(lecture() ?? {}) !== "End") || (lecture()?.author?.eoa == accountAddress)}
                   onClick={() => {
+                    const formVal : FavoriteForm = {lecture_id: lecture()?.id, eoa: userApiByAccountAddress.response.user.eoa}
+                    newFaoriteForm.set(formVal);
                     console.log(lecture()?.author?.eoa);
                     handleAddFavos()
-                    // addFavos(lecture()?.author?.eoa, FAVO_AMOUNT);
                   }}
                 >
-                    勉強会にいいねを押す ID: {lecture()?.id}
+                    勉強会にいいねを押す
                 </Button>
               </Space>
             </Col>

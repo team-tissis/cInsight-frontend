@@ -19,13 +19,9 @@ import {
   import { sleep } from "utils/util";
   import { message, notification } from "antd";
   
-  export type LectureResponse = BaseResponse & {
-    lecture: Lecture;
-  };
-  
   export type Favorite = {
-    lecture_id: string | undefined;
-    eoa: string | undefined;
+    lecture_id?: string;
+    eoa?: string;
   };
   
   export type FavoriteForm = Favorite;
