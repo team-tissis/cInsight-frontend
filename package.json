@@ -42,6 +42,7 @@
     "axios": "^0.21.1",
     "bootstrap": "5.0.2",
     "crc-32": "^1.2.2",
+    "dotenv": "^16.0.3",
     "encoding-japanese": "^2.0.0",
     "env-cmd": "^10.1.0",
     "ethers": "^5.7.2",
@@ -84,7 +85,7 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "env-cmd -f .env.development react-scripts start",
     "start:production": "env-cmd -f .env.production react-scripts start",
     "start:staging": "env-cmd -f .env.staging  react-scripts start",
     "build:development": "env-cmd -f .env.development react-scripts build",
@@ -117,8 +118,8 @@
     "eslint": "^7.31.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-react": "^7.24.0",
-    "sass": "^1.32.5",
     "prettier": "^2.3.2",
+    "sass": "^1.32.5",
     "sass-loader": "^12.0.0"
   }
 }
