@@ -4,7 +4,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Setup
 ```
-$ yarn install
+$ npm install --legacy-peer-deps
 ```
 
 ### Development
