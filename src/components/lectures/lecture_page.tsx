@@ -60,7 +60,6 @@ const LecturePage = (props: Props) => {
   const params = useParams<{ id: string }>();
   const lectureApi = useFetchLectureApi();
   const searchForm = useForm<CommentSearchForm>({});
-  const newFaoriteForm = useForm<FavoriteForm>({});
   const globalState = useContext(GlobalStateContext);
   const [movieVisible, setMovieVisible] = useState(false);
   const [openPurchaseModal, setOpenPurchaseModal] = useState(false);
@@ -129,10 +128,10 @@ const LecturePage = (props: Props) => {
   
 
   const handleAddFavos = () => {
+    // setした後にDOMの読み込みが走ってからでないと、値の更新はされない
     const formVal : FavoriteForm = {lecture_id: lecture()?.id, eoa: userApiByAccountAddress.response.user.eoa}
-    newFaoriteForm.set(formVal);
     // DBへのいいねの反映
-    postFavoriteApi.execute(newFaoriteForm);
+    postFavoriteApi.execute(formVal);
     // スマコンへのいいねの反映
     // addFavos(lecture()?.author?.eoa, FAVO_AMOUNT);
   };
@@ -331,9 +330,6 @@ const LecturePage = (props: Props) => {
                   type="primary"
                   disabled={(getLectureStatus(lecture() ?? {}) !== "End") || (lecture()?.author?.eoa == accountAddress)}
                   onClick={() => {
-                    const formVal : FavoriteForm = {lecture_id: lecture()?.id, eoa: userApiByAccountAddress.response.user.eoa}
-                    newFaoriteForm.set(formVal);
-                    console.log(lecture()?.author?.eoa);
                     handleAddFavos()
                   }}
                 >

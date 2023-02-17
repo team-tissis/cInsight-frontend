@@ -7,6 +7,7 @@ import {
     useIndexApi,
     usePatchApi,
     usePostApi,
+    usePostRawApi,
     usePutApi,
     useShowApi,
   } from "utils/network/api_hooks";
@@ -27,9 +28,9 @@ import {
   export type FavoriteForm = Favorite;
 
   export function usePostFavoriteApi(): ApiSet<BaseResponse> & {
-    execute: (form: Form<FavoriteForm>) => void;
+    execute: (form: FavoriteForm) => void;
   } {
-    const api = usePostApi<BaseResponse, FavoriteForm>(
+    const api = usePostRawApi<BaseResponse, FavoriteForm>(
       new HttpClient(),
       {
         initialResponse: {},
@@ -37,7 +38,7 @@ import {
       { formatJson: true }
     );
   
-    const execute = (form: Form<FavoriteForm>) => {
+    const execute = (form: FavoriteForm) => {
       const apiPath = `favorites/`;
       console.log({いいね機能のフォーム: form})
       api.execute(apiPath, form);
