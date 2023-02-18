@@ -48,7 +48,7 @@ import { useFetchCommentsApi } from "api/comment";
 import { CommentSearchForm } from "entities/comment";
 import { addFavos } from "api/fetch_sol/sbt";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
-import { usePostFavoriteApi, Favorite, FavoriteForm } from "api/favorite";
+import { usePostFavoriteApi, FavoriteForm } from "api/favorite";
 import { useFetchUserByAccountAddressApi } from "api/user";
 
 type Props = {
@@ -133,7 +133,9 @@ const LecturePage = (props: Props) => {
     // DBへのいいねの反映
     postFavoriteApi.execute(formVal);
     // スマコンへのいいねの反映
-    // addFavos(lecture()?.author?.eoa, FAVO_AMOUNT);
+    addFavos(lecture()?.author?.eoa, FAVO_AMOUNT);
+    // 再レンダリング
+    setForceReloading((prev) => prev + 1)
   };
 
   return (
@@ -313,7 +315,6 @@ const LecturePage = (props: Props) => {
               <Space direction="vertical">
                 <Statistic
                   title="いいね"
-                  // value={lecture()?.nLike ?? 0}
                   value={lecture()?.favo ?? 0}
                   prefix={
                     <LikeOutlined
@@ -323,15 +324,11 @@ const LecturePage = (props: Props) => {
                     />
                   }
                 />
-                { lecture()?.id }
-                { userApiByAccountAddress.response.user.eoa }
                 <Button
                   key={"lecture like button"}
                   type="primary"
                   disabled={(getLectureStatus(lecture() ?? {}) !== "End") || (lecture()?.author?.eoa == accountAddress)}
-                  onClick={() => {
-                    handleAddFavos()
-                  }}
+                  onClick={() => handleAddFavos()}
                 >
                     勉強会にいいねを押す
                 </Button>
