@@ -1,32 +1,26 @@
 import {
   Button,
   Col,
-  Form,
   PageHeader,
   Row,
   Space,
   Statistic,
-  Switch,
 } from "antd";
 import { ContentBlock } from "components/shared/content_block";
 import {
   LikeOutlined,
-  ArrowUpOutlined,
-  UnlockOutlined,
 } from "@ant-design/icons";
-import Countdown from "antd/lib/statistic/Countdown";
 import { UserProfileView } from "./user_view";
 import { User } from "entities/user";
 import { StatistcsLikeBlock } from "components/shared/statistics_like_block";
 import { useContext, useEffect, useState } from "react";
-import { CreateUserSbtForm, EditUserForm, ReferralForm } from "./user_form";
+import { EditUserForm, ReferralForm } from "./user_form";
 import { useEffectSkipFirst, useForm } from "utils/hooks";
 import * as H from "history";
 import { useParams, withRouter } from "react-router";
-import { useCheckHasSbtApi } from "api/meta_mask";
 import {
-  fetchAccountImageUrl,
   fetchConnectedAccountInfo,
+  fetchAccountImageUrl,
   fetchConnectedAccountReferralNum,
   fetchMonthlyDistributedFavoNum,
   refer,
@@ -69,6 +63,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
   const [openReferralForm, setOpenRefaralForm] = useState(false);
   const referralForm = useForm<ReferralForm>({});
 
+  const [url, setUrl] = useState<string | undefined>();
   const [favo, setFavo] = useState();
   const [grade, setGrade] = useState();
   const [maki, setMaki] = useState();
@@ -94,7 +89,6 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
       userApi.execute(Number(params.id));
     } else {
       // マイページのとき
-      // ToDo1: アカウントアドレスを取得
       (async () => {
         const _accountAddress = await getCurrentAccountAddress();
         setAccountAddress(_accountAddress);
@@ -105,9 +99,9 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
   useEffectSkipFirst(() => {
     if (accountAddress !== undefined) {
       // マイページのとき
-      // このスコープ内はこのままでよき
       userApiByAccountAddress.execute(accountAddress);
       (async function () {
+        setUrl(await fetchAccountImageUrl())
         setFavo(await fetchConnectedAccountInfo("favoOf"));
         setGrade(await fetchConnectedAccountInfo("gradeOf"));
         setMaki(await fetchConnectedAccountInfo("makiOf"));
@@ -121,9 +115,8 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
 
   useEffect(() => {
     globalState.setLoading(userApiByAccountAddress.loading);
-    // この部分が実行されるのは、マイページのときのみ
-    // このスコープ内もこのままでよき
     if (userApiByAccountAddress.isSuccess() && props.isMyPage) {
+      // この部分が実行されるのは、マイページのときのみ
       editUserForm.set(userApiByAccountAddress.response.user);
     }
   }, [userApiByAccountAddress.loading]);
@@ -133,8 +126,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
     if (userApi.isSuccess() && !props.isMyPage) {
       // この部分が実行されるのは、マイページではないときのみ
       (async function () {
-        console.log(userApi.response.user.eoa); // eoaはこれで取れる
-        // ToDo2. 以下を、↑のeoaを渡す形に書き換える
+        setUrl(await fetchAccountImageUrl(userApi.response.user.eoa))
         setFavo(
           await fetchConnectedAccountInfo("favoOf", userApi.response.user.eoa)
         );
@@ -209,9 +201,9 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
           {UserProfileView(
             props.isMyPage
               ? userApiByAccountAddress.response.user
-              : userApi.response.user
+              : userApi.response.user,
+            url
           )}
-          {/* {UserProfileView(user)} */}
         </ContentBlock>
         <ContentBlock title="SBT INFO">
           <Row>

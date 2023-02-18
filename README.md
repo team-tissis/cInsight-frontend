@@ -16,27 +16,27 @@ REACT_APP_TOKEN=(Token issured by backend server)
 ```
 Then, You can run
 ```bash
-npm start
+yarn start
 ```
 
 
 ### Deploy in EC2
-Create `.env.development` file and write the following it.  
-You can refer to `.env.development.sample`.
+Create `.env.production` file and write the following it.  
 ```bash
-REACT_APP_API_HOST=http://(public IP of EC2 instance)
+HTTPS=True
+REACT_APP_API_HOST=https://(public IP of EC2 instance)
 REACT_APP_TOKEN=(Token issured by backend server)
 ```
 Then, You can run
 ```bash
-HTTPS=True npm start
+yarn start:production
 ```
 
 ## Scripts
 
 In the project directory, you can run:
 
-### `npm start`
+### `yarn start`
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
