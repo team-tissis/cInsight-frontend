@@ -11,14 +11,7 @@ import {
     usePutApi,
     useShowApi,
   } from "utils/network/api_hooks";
-  import { Form, useEffectSkipFirst } from "utils/hooks";
   import { HttpClient } from "../utils/network/axios";
-  import { PagingResponse } from "entities";
-  import { Lecture, LectureForm, LectureSearchForm } from "entities/lecture";
-  import { CookieManager } from "utils/cookie_manager";
-  import { comments, lectureData } from "sample_data/lecture";
-  import { sleep } from "utils/util";
-  import { message, notification } from "antd";
   
   export type Favorite = {
     lecture_id?: string;
@@ -50,22 +43,4 @@ import {
       execute: execute,
     };
   }
-  
-//   export function useDeleteLectureApi(): ApiSet<BaseResponse> & {
-//     execute: (id: string) => void;
-//   } {
-//     const api = useDeleteApi<BaseResponse>(new HttpClient(), {
-//       initialResponse: {},
-//     });
-  
-//     const execute = (id: string): void => {
-//       const apiPath = `lectures/${id}/`;
-//       api.execute(apiPath);
-//     };
-//     return {
-//       ...api,
-//       isSuccess: () => !api.loading && !api.isError,
-//       execute: execute,
-//     };
-//   }
   
