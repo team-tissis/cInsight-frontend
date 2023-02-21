@@ -120,11 +120,11 @@ export async function mint(address) {
       const options = { value: ethers.utils.parseEther("0.002") };
       mintIndex = await contract.mintWithReferral(address, options);
     }
-    console.log({ mintIndex })
-    return true
+    console.log({ mintIndex });
+    return true;
   } catch (e) {
-    console.log({ mint_error: e })
-    return false
+    console.log({ mint_error: e });
+    return false;
   }
   //TODO; minted listen
 }

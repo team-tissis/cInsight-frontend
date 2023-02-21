@@ -47,12 +47,16 @@ import { EditLectureForm } from "./lecture_form";
 import { useFetchCommentsApi } from "api/comment";
 import { CommentSearchForm } from "entities/comment";
 import { addFavos } from "api/fetch_sol/sbt";
+import { getCurrentAccountAddress } from "api/fetch_sol/utils";
+import { usePostFavoriteApi, FavoriteForm } from "api/favorite";
+import { useFetchUserByAccountAddressApi } from "api/user";
 
 type Props = {
   history: H.History;
 };
 
 const LecturePage = (props: Props) => {
+  const FAVO_AMOUNT = 1;
   const params = useParams<{ id: string }>();
   const lectureApi = useFetchLectureApi();
   const searchForm = useForm<CommentSearchForm>({});
@@ -64,12 +68,30 @@ const LecturePage = (props: Props) => {
   const [applyStatus, setApplyStatus] = useState<
     "open" | "allplyed" | "closed"
   >("allplyed");
+  const [forceReloading, setForceReloading] = useState(0);
   const editLectureForm = useForm<Lecture>({});
   const putLectureApi = usePutLectureApi();
   const deleteLectureApi = useDeleteLectureApi();
 
+  const userApiByAccountAddress = useFetchUserByAccountAddressApi();
+  const [accountAddress, setAccountAddress] = useState<string | undefined>(
+    undefined
+  );
+  const postFavoriteApi = usePostFavoriteApi();
+
   useEffect(() => {
     lectureApi.execute(Number(params.id));
+  }, [forceReloading]);
+
+
+  useEffect(() => {
+    // ToDo1: アカウントアドレスを取得
+    (async () => {
+        const _accountAddress = await getCurrentAccountAddress();
+        console.log({自分のアカウントアドレス: _accountAddress})
+        setAccountAddress(_accountAddress);
+        userApiByAccountAddress.execute(_accountAddress!);
+    })();
   }, []);
 
   useEffectSkipFirst(() => {
@@ -103,8 +125,18 @@ const LecturePage = (props: Props) => {
     setOpenEditLectureForm(true);
     editLectureForm.set(() => lecture() ?? {});
   };
+  
 
-  console.log(editLectureForm.object);
+  const handleAddFavos = () => {
+    // setした後にDOMの読み込みが走ってからでないと、値の更新はされない
+    const formVal : FavoriteForm = {lecture_id: lecture()?.id, eoa: userApiByAccountAddress.response.user.eoa}
+    // DBへのいいねの反映
+    postFavoriteApi.execute(formVal);
+    // スマコンへのいいねの反映
+    addFavos(lecture()?.author?.eoa, FAVO_AMOUNT);
+    // 再レンダリング
+    setForceReloading((prev) => prev + 1)
+  };
 
   return (
     <PageHeader
@@ -283,7 +315,7 @@ const LecturePage = (props: Props) => {
               <Space direction="vertical">
                 <Statistic
                   title="いいね"
-                  value={lecture()?.nLike ?? 0}
+                  value={lecture()?.favo ?? 0}
                   prefix={
                     <LikeOutlined
                       style={{
@@ -295,13 +327,10 @@ const LecturePage = (props: Props) => {
                 <Button
                   key={"lecture like button"}
                   type="primary"
-                  disabled={getLectureStatus(lecture() ?? {}) !== "End"}
-                  onClick={() => {
-                    console.log(lecture()?.author?.eoa);
-                    addFavos(lecture()?.author?.eoa, 1);
-                  }}
+                  disabled={(getLectureStatus(lecture() ?? {}) !== "End") || (lecture()?.author?.eoa == accountAddress)}
+                  onClick={() => handleAddFavos()}
                 >
-                  勉強会にいいねを押す
+                    勉強会にいいねを押す
                 </Button>
               </Space>
             </Col>
