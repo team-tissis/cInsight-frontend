@@ -1,5 +1,5 @@
 import contractFuncLocal from "../../broadcast/cInsightScript.s.sol/31337/run-latest.json";
-import contractFuncTestnet from "../../broadcast/cInsightDeploy.s.sol/80001/run-latest.json";
+import contractFuncTestnet from "../../broadcast/cInsightScript.s.sol/31337/run-latest.json";
 import { ethers } from "ethers";
 import ChainInsightLogicV1 from "../../abi/LogicV1.sol/ChainInsightLogicV1.json";
 import ChainInsightExecutorV1 from "../../abi/ExecutorV1.sol/ChainInsightExecutorV1.json";
@@ -63,6 +63,7 @@ export function getAbi(contractName) {
 export async function getContract(contractName, abi) {
   if (abi === undefined) abi = getAbi(contractName);
   const contractAddress = getContractAddress(contractName);
+  console.log({コントラクトアドレス: contractAddress})
   const signer = await getSigner();
   const contract = new ethers.Contract(contractAddress, abi, signer);
   return { contractAddress, signer, contract };
