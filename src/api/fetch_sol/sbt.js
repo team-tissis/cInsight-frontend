@@ -106,8 +106,7 @@ export async function fetchMintedTokenNumber() {
   return message.toString();
 }
 
-// const ETH_AMOUNT = "0.002"
-const ETH_AMOUNT = "2"
+const ETH_AMOUNT = "0.002"
 export async function mint(address) {
   try {
     let mintIndex;
