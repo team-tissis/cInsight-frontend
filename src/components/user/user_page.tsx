@@ -9,6 +9,7 @@ import {
 import { ContentBlock } from "components/shared/content_block";
 import {
   LikeOutlined,
+  SyncOutlined
 } from "@ant-design/icons";
 import { UserProfileView } from "./user_view";
 import { User } from "entities/user";
@@ -72,6 +73,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
   const [referral, setReferral] = useState();
   const [referralRemain, setReferralRemain] = useState();
   const [monthlyDistributedFavoNum, setMonthlyDistributedFavoNum] = useState();
+  const [havingFavoCount, setHavingFavoCount] = useState(0);
   const globalState = useContext(GlobalStateContext);
 
   const userApi = useFetchUserApi();
@@ -251,9 +253,32 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
                 </div>
               </StatistcsLikeBlock>
             </Col>
+            <Col span={16}>
+                <StatistcsLikeBlock title="いいねを同期">
+                <Space direction="vertical">
+                  <Space style={{ alignItems: "center" }}>
+                    <SyncOutlined
+                      style={{
+                        verticalAlign: 2,
+                      }}
+                    />
+                      {havingFavoCount}
+                  </Space>
+                </Space>
+                </StatistcsLikeBlock>
+                <Button
+                  type="primary"
+                  style={{ marginTop: 20 }}
+                  onClick={() => {
+                    setOpenRefaralForm(true);
+                  }}
+                >
+                  獲得したいいねをチェーンに反映させる
+                </Button>
+              </Col>
           </Row>
         </ContentBlock>
-        {props.isMyPage && (
+        {props.isMyPage && (<>
           <ContentBlock title="リファラル">
             <StatistcsLikeBlock title="リファラル数（翌月にリセットされます）">
               {referral} / {referralRemain}
@@ -261,14 +286,14 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
             <Button
               type="primary"
               style={{ marginTop: 20 }}
-              onClick={() => {
-                setOpenRefaralForm(true);
-              }}
-            >
-              新規リファラル
+                onClick={() => {
+                  setOpenRefaralForm(true);
+                }}
+              >
+                新規リファラル
             </Button>
           </ContentBlock>
-        )}
+        </>)}
       </Space>
     </>
   );
