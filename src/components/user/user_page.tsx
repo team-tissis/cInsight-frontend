@@ -26,6 +26,7 @@ import {
   fetchMonthlyDistributedFavoNum,
   refer,
 } from "api/fetch_sol/sbt";
+import { useFetchFavoritesApi } from "api/favorite";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
 import {
   useFetchUserApi,
@@ -74,6 +75,8 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
   const [referralRemain, setReferralRemain] = useState();
   const [monthlyDistributedFavoNum, setMonthlyDistributedFavoNum] = useState();
   const [havingFavoCount, setHavingFavoCount] = useState(0);
+  // const currentAddress =  await getCurrentAccountAddress();
+  const favoritesApi = useFetchFavoritesApi();
   const globalState = useContext(GlobalStateContext);
 
   const userApi = useFetchUserApi();
@@ -123,6 +126,13 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
     }
   }, [userApiByAccountAddress.loading]);
 
+  useEffect(() => {
+    console.log({アドレス: accountAddress})
+    if ( accountAddress != null){
+      favoritesApi.execute(accountAddress!);
+    }
+  }, [accountAddress]);
+
   useEffectSkipFirst(() => {
     globalState.setLoading(userApi.loading);
     if (userApi.isSuccess() && !props.isMyPage) {
@@ -163,8 +173,13 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
       // マイページのとき
       // このスコープ内はこのままでよき
       userApiByAccountAddress.execute(accountAddress!);
+      console.log({いいねの取得: favoritesApi.response.results})
     }
   }, [putUserApi.loading]);
+
+  useEffect(() => {
+    console.log({いいねの取得: favoritesApi.response.results})
+  }, [])
 
   return (
     <>
@@ -262,7 +277,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
                         verticalAlign: 2,
                       }}
                     />
-                      {havingFavoCount}
+                      {/* {favoritesApi.response.results} */}
                   </Space>
                 </Space>
                 </StatistcsLikeBlock>

@@ -1,5 +1,5 @@
 import contractFuncLocal from "../../broadcast/cInsightScript.s.sol/31337/run-latest.json";
-import contractFuncTestnet from "../../broadcast/cInsightDeploy.s.sol/80001/run-latest.json";
+import contractFuncTestnet from "../../broadcast/cInsightScript.s.sol/31337/run-latest.json";
 import { ethers } from "ethers";
 import ChainInsightLogicV1 from "../../abi/LogicV1.sol/ChainInsightLogicV1.json";
 import ChainInsightExecutorV1 from "../../abi/ExecutorV1.sol/ChainInsightExecutorV1.json";
@@ -8,7 +8,8 @@ import BonfireProxy from "../../abi/BonfireProxy.sol/Bonfire.json";
 import BonfireLogic from "../../abi/BonfireLogic.sol/BonfireLogic.json";
 import SkinNft from "../../abi/SkinNft.sol/SkinNft.json";
 
-const msgSender = Number(process.env.REACT_APP_MSG_SENDER);
+// const msgSender = Number(process.env.REACT_APP_MSG_SENDER);
+const msgSender = Number("1");
 const LOCAL_FLAG = JSON.parse(process.env.REACT_APP_LOCAL_FLAG.toLowerCase());
 
 // signerを取得
