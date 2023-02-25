@@ -132,7 +132,7 @@ const MyPageWithoutSbt = (props: MyPageWithoutSbtProps) => {
             notification["success"]({
               message: response.message,
               style: {
-                backgroundColor: "#FFF2F0",
+                backgroundColor: "#F2FFF0",
               },
             });
           } catch (e) {
