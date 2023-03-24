@@ -25,8 +25,9 @@ import {
   fetchConnectedAccountReferralNum,
   fetchMonthlyDistributedFavoNum,
   refer,
+  addFavos
 } from "api/fetch_sol/sbt";
-import { useFetchFavoritesApi } from "api/favorite";
+import { SimpleFavorite, useFetchFavoritesApi, usePatchFavoriteApi } from "api/favorite";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
 import {
   useFetchUserApi,
@@ -77,10 +78,12 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
   const [havingFavoCount, setHavingFavoCount] = useState(0);
   // const currentAddress =  await getCurrentAccountAddress();
   const favoritesApi = useFetchFavoritesApi();
+  const favoritePatchApi = usePatchFavoriteApi();
   const globalState = useContext(GlobalStateContext);
 
   const userApi = useFetchUserApi();
   const putUserApi = usePutUserApi();
+  const [favoTotalVal, setFavoTotalVal] = useState<number>();
   const userApiByAccountAddress = useFetchUserByAccountAddressApi();
   const [accountAddress, setAccountAddress] = useState<string | undefined>(
     undefined
@@ -127,7 +130,6 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
   }, [userApiByAccountAddress.loading]);
 
   useEffect(() => {
-    console.log({アドレス: accountAddress})
     if ( accountAddress != null){
       favoritesApi.execute(accountAddress!);
     }
@@ -173,13 +175,30 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
       // マイページのとき
       // このスコープ内はこのままでよき
       userApiByAccountAddress.execute(accountAddress!);
-      console.log({いいねの取得: favoritesApi.response.results})
     }
   }, [putUserApi.loading]);
 
-  useEffect(() => {
-    console.log({いいねの取得: favoritesApi.response.results})
-  }, [])
+  useEffect(()=> {
+    let favoTotalVal = 0;
+    for (let step = 0; step < favoritesApi.response.results.length; step++) {
+      favoTotalVal += favoritesApi.response.results[step].volume
+    }
+    setFavoTotalVal(favoTotalVal)
+  }, [favoritesApi])
+
+  const sendDataToChain = async () => {
+    for (let step = 0; step < favoritesApi.response.results.length; step++) {
+      console.log({"アドレス": favoritesApi.response.results[step].eoa, 'いいね': favoritesApi.response.results[step].volume})
+      try {
+        // オンチェーンにデータを保存する
+        await addFavos(favoritesApi.response.results[step].eoa, favoritesApi.response.results[step].volume);
+        // DBのレコードを同期済みに変更する
+        favoritePatchApi.execute({id: favoritesApi.response.results[step].id})
+      } catch (error) {
+        console.error(error);
+      }      
+    }
+  }
 
   return (
     <>
@@ -276,17 +295,15 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
                       style={{
                         verticalAlign: 2,
                       }}
-                    />
-                      {/* {favoritesApi.response.results} */}
+                    /> 
+                    { favoTotalVal }
                   </Space>
                 </Space>
                 </StatistcsLikeBlock>
                 <Button
                   type="primary"
                   style={{ marginTop: 20 }}
-                  onClick={() => {
-                    setOpenRefaralForm(true);
-                  }}
+                  onClick={ async () => await sendDataToChain() }
                 >
                   獲得したいいねをチェーンに反映させる
                 </Button>

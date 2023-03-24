@@ -18,7 +18,7 @@ import {
     lecture_id?: string;
     eoa?: string;
   };
-  
+
   export type FavoriteForm = Favorite;
 
   export function usePostFavoriteApi(): ApiSet<BaseResponse> & {
@@ -45,9 +45,10 @@ import {
     };
   }
 
-  type SimpleFavorite = {
+  export type SimpleFavorite = {
     id: number;
     volume: number;
+    eoa: string;
   };
   type FavoritesResponse = BaseResponse & {
     results: SimpleFavorite[];
@@ -59,7 +60,7 @@ import {
     const api = useShowApi<FavoritesResponse>(new HttpClient(), {
       initialResponse: { results: [] },
     });
-  
+
     const execute = (accountAddress: string): void => {
       const apiPath = `favorites/user_favorites/`;
       api.execute(apiPath, { accountAddress });
@@ -72,21 +73,28 @@ import {
     };
   }
 
-  // export function useFetchFavoritesApi(): IndexApiSet<FavoritesResponse> & { execute: (address: string) => void } {
-  //   const apiPath = "favorites/user_favorites";
-  //   const api = useIndexApi<FavoritesResponse>(new HttpClient(), {
-  //     initialState: { page: 1, perPage: 10 },
-  //     initialResponse: { count: 0, results: [] },
-  //   });
+  export type FavoParams = {
+    id?: number;
+  };
+  export function usePatchFavoriteApi(): ApiSet<BaseResponse> & {
+    execute: (params: FavoParams) => void;
+  } {
+    const api = usePutApi<BaseResponse, FavoParams>(
+      new HttpClient(),
+      {
+        initialResponse: {},
+      },
+      { formatJson: true }
+    );
   
-  //   const execute = (address: string): void => {
-  //     api.execute(apiPath, { params: address });
-  //   };
+    const execute = (params: FavoParams) => {
+      const apiPath = 'favorites/update_to_sync/'
+      api.execute(apiPath, params);
+    };
   
-  //   return {
-  //     ...api,
-  //     isSuccess: () => !api.loading && !api.isError,
-  //     execute: execute,
-  //   };
-  // }
-  
+    return {
+      ...api,
+      isSuccess: () => !api.loading && !api.isError,
+      execute: execute,
+    };
+  }
