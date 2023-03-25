@@ -12,7 +12,6 @@ import {
     useShowApi,
   } from "utils/network/api_hooks";
   import { HttpClient } from "../utils/network/axios";
-  import { PagingResponse } from "entities";
 
   export type Favorite = {
     lecture_id?: string;

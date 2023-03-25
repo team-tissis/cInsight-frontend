@@ -75,8 +75,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
   const [referral, setReferral] = useState();
   const [referralRemain, setReferralRemain] = useState();
   const [monthlyDistributedFavoNum, setMonthlyDistributedFavoNum] = useState();
-  const [havingFavoCount, setHavingFavoCount] = useState(0);
-  // const currentAddress =  await getCurrentAccountAddress();
+  
   const favoritesApi = useFetchFavoritesApi();
   const favoritePatchApi = usePatchFavoriteApi();
   const globalState = useContext(GlobalStateContext);
@@ -196,7 +195,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
         favoritePatchApi.execute({id: favoritesApi.response.results[step].id})
       } catch (error) {
         console.error(error);
-      }      
+      }
     }
   }
 

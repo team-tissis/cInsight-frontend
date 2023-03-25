@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { getContract, getAbi, getCurrentAccountAddress } from "./utils";
+import { getContract, getAbi, getCurrentAccountAddress, getProvider } from "./utils";
 
 function getSbtAbiAddedImp(_functionNames) {
   const abi = getAbi("Bonfire");
@@ -112,12 +112,12 @@ export async function mint(address) {
     if (address === undefined) {
       // mint
       const { contract } = await getContract("Bonfire");
-      const options = { value: ethers.utils.parseEther("0.2") };
+      const options = { value: ethers.utils.parseEther("0.002") };
       mintIndex = await contract.mint(options);
     } else {
       // mint with referral
       const { contract } = await getContract("Bonfire", sbtAbi);
-      const options = { value: ethers.utils.parseEther("0.2") };
+      const options = { value: ethers.utils.parseEther("0.002") };
       mintIndex = await contract.mintWithReferral(address, options);
     }
     console.log({ mintIndex });
@@ -136,9 +136,33 @@ export async function refer(address) {
   //TODO; refer listen
 }
 
+// https://stackoverflow.com/questions/72276562/ethers-js-set-noonce-when-using-contract-object
+export async function sendMultiFavos(address, num) {
+  const { contract } = await getContract("Bonfire", sbtAbi);
+  // const { ethereum } = window;
+  // const provider = new ethers.providers.Web3Provider(ethereum);
+  // const signer = provider?.getSigner();
+  // const contract = new ethers.Contract(
+  //     CONTRACT_ADDRESS,
+  //     CONTRACT_ABI,
+  //     signer
+  // );
+  const provider = await getProvider();
+  const nonce = await provider.getTransactionCount(contract.address);
+  const tx = await contract.addFavos(address, num, {
+                      // gasLimit: gasLimit,
+                      // gasPrice: gasPrice,
+                      value: ethers.utils.parseEther("0.01"),
+                      nonce: nonce,
+                  });
+}
+
+
 export async function _addFavos(address, num) {
   const { contract } = await getContract("Bonfire", sbtAbi);
   console.log(address);
+  // const nonce = await getNonce(address)
+  // console.log("nonceは", nonce)
   contract.addFavos(address, num);
 }
 
@@ -146,7 +170,10 @@ export async function addFavos(address, num) {
   console.log({ addFavos: address });
   try {
     _addFavos(address, num);
+    // sendMultiFavos(address, num)
+    console.log("favo saved")
   } catch (e) {
     console.log(e);
+    throw new Error(e);
   }
 }
