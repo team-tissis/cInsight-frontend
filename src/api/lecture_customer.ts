@@ -45,7 +45,6 @@ export function usePostLectureCustomerApi(): ApiSet<BaseResponse> & {
 
 export type SimpleCustomer = {
     id: number;
-    volume: number;
     eoa: string;
 };
 type LectureCustomerResponse = BaseResponse & {
@@ -60,7 +59,7 @@ export function useFetchLectureCustomerApi(): ApiSet<LectureCustomerResponse> & 
     });
   
     const execute = (lectureId: string): void => {
-        const apiPath = `favorites/user_favorites/`;
+        const apiPath = `lecture_customers/index/`;
         api.execute(apiPath, { lectureId });
     };
     

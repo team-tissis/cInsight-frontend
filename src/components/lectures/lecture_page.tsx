@@ -88,6 +88,8 @@ const LecturePage = (props: Props) => {
 
   useEffect(() => {
     lectureApi.execute(Number(params.id));
+    // 勉強会の参加を示したユーザーを取得
+    lectureCustomerApi.execute(params.id);
   }, [forceReloading]);
 
 
@@ -112,7 +114,6 @@ const LecturePage = (props: Props) => {
     globalState.setLoading(putLectureApi.loading);
     if (putLectureApi.isSuccess()) {
       lectureApi.execute(Number(params.id));
-      lectureCustomerApi.execute(params.id);
     }
   }, [putLectureApi.loading]);
 
@@ -356,7 +357,8 @@ const LecturePage = (props: Props) => {
               <Space direction="vertical">
                 <Statistic
                   title="参加人数/参加可能枠"
-                  value={lecture()?.attendeeNum}
+                  // value={lecture()?.attendeeNum}
+                  value={lectureCustomerApi.response.results.length}
                   suffix={`/ ${lecture()?.attendeeMaxNum}`}
                 />
                 {(() => {
