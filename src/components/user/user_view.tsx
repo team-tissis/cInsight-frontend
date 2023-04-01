@@ -16,6 +16,7 @@ import { User } from "entities/user";
 import { useEffect, useState } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
 
+
 export const UserProfileView = (user: User, userUrl?: string) => {
   return (
     <Space size={20}>
@@ -51,13 +52,14 @@ export const UserListView = (user: User, loading = false) => {
       onMouseOver={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <Skeleton avatar title={false} loading={loading} active>
-        <List.Item.Meta
-          avatar={AvatorView(user.eoa)}
-          title={user.name}
-          description={<div>token: {user.eoa}</div>}
-        />
-      </Skeleton>
+        <Skeleton avatar title={false} loading={loading} active>
+          <List.Item.Meta
+            avatar={AvatorView(user.eoa)}
+            title={user.name}
+            description={<div>token: {user.eoa}</div>}
+          />
+        </Skeleton>
+
     </Card>
   );
 };

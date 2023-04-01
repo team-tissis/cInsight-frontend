@@ -29,6 +29,7 @@ import { getCurrentAccountAddress } from "api/fetch_sol/utils";
 import { useFetchUserApi, useFetchUserByAccountAddressApi } from "api/user";
 import { AvatorView } from "components/user/user_view";
 import * as H from "history";
+import { Link } from "react-router-dom";
 
 export type EditorProps = {
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -154,8 +155,11 @@ export const LectureCommetnsList = (props: LectureCommentsListProps) => {
                       </span>
                     </Tooltip>,
                   ]}
-                  author={item.commenter?.eoa}
-                  avatar={AvatorView(item.commenter?.eoa)}
+                  // author={<a>Gourav Hammad</a>}
+                  // avatar={<Avatar style={{ backgroundColor: 'green' }}>G</Avatar>}
+
+                  author={item.commenter?.name}
+                  avatar={<Link style={{ textDecoration: "auto" }} to={`/users/${item.commenter?.id}`}>{AvatorView(item.commenter?.eoa)}</Link>}
                   content={item.content}
                   datetime={moment(item.createdAt).fromNow()}
                 />
