@@ -13,14 +13,15 @@ import {
   } from "utils/network/api_hooks";
   import { HttpClient } from "../utils/network/axios";
   
-  export type LectureJoinInForm = {
+  
+export type LectureJoinInForm = {
     lecture_id?: string;
     eoa?: string;
-  };
+};
 
-  export function usePostLectureCustomerApi(): ApiSet<BaseResponse> & {
+export function usePostLectureCustomerApi(): ApiSet<BaseResponse> & {
     execute: (form: LectureJoinInForm) => void;
-  } {
+} {
     const api = usePostRawApi<BaseResponse, LectureJoinInForm>(
       new HttpClient(),
       {
@@ -40,57 +41,27 @@ import {
       isSuccess: () => !api.loading && !api.isError,
       execute: execute,
     };
-  }
-  
+}
 
-//   export type SimpleFavorite = {
-//     id: number;
-//     volume: number;
-//     eoa: string;
-//   };
-//   type FavoritesResponse = BaseResponse & {
-//     results: SimpleFavorite[];
-//   };
-
-//   export function useFetchFavoritesApi(): ApiSet<FavoritesResponse> & {
-//     execute: (accountAddress: string) => void;
-//   } {
-//     const api = useShowApi<FavoritesResponse>(new HttpClient(), {
-//       initialResponse: { results: [] },
-//     });
-
-//     const execute = (accountAddress: string): void => {
-//       const apiPath = `favorites/user_favorites/`;
-//       api.execute(apiPath, { accountAddress });
-//     };
-  
-//     return {
-//       ...api,
-//       isSuccess: () => !api.loading && !api.isError,
-//       execute: execute,
-//     };
-//   }
-
-
-  export type SimpleCustomer = {
+export type SimpleCustomer = {
     id: number;
     volume: number;
     eoa: string;
-  };
-  type LectureCustomerResponse = BaseResponse & {
+};
+type LectureCustomerResponse = BaseResponse & {
     results: SimpleCustomer[];
-  };
+};
 
-  export function useFetchLectureCustomerApi(): ApiSet<LectureCustomerResponse> & {
-    execute: (form: LectureJoinInForm) => void;
-  } {
+export function useFetchLectureCustomerApi(): ApiSet<LectureCustomerResponse> & {
+    execute: (lectureId: string) => void;
+} {
     const api = useShowApi<LectureCustomerResponse>(new HttpClient(), {
         initialResponse: { results: [] },
     });
   
-    const execute = (accountAddress: string): void => {
+    const execute = (lectureId: string): void => {
         const apiPath = `favorites/user_favorites/`;
-        api.execute(apiPath, { accountAddress });
+        api.execute(apiPath, { lectureId });
     };
     
     return {
@@ -98,24 +69,4 @@ import {
         isSuccess: () => !api.loading && !api.isError,
         execute: execute,
     };
-
-    // const api = usePostRawApi<LectureCustomerResponse, LectureJoinInForm>(
-    //   new HttpClient(),
-    //   {
-    //     initialResponse: {},
-    //   },
-    //   { formatJson: true }
-    // );
-  
-    // const execute = (form: LectureJoinInForm) => {
-    //   const apiPath = `lecture_customers/index/`;
-    //   console.log({勉強会の参加登録機能のフォーム: form})
-    //   api.execute(apiPath, form);
-    // };
-  
-    // return {
-    //   ...api,
-    //   isSuccess: () => !api.loading && !api.isError,
-    //   execute: execute,
-    // };
-  }
+}
