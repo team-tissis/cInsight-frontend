@@ -43,10 +43,15 @@ import {
   }
   
 
-  export function useGetLectureCustomerApi(): ApiSet<BaseResponse> & {
+  
+  export type LectureCustomerResponse = {
+    result: [] Customer
+  };
+
+  export function useFetchLectureCustomerApi(): ApiSet<LectureCustomerResponse> & {
     execute: (form: LectureJoinInForm) => void;
   } {
-    const api = usePostRawApi<BaseResponse, LectureJoinInForm>(
+    const api = usePostRawApi<LectureCustomerResponse, LectureJoinInForm>(
       new HttpClient(),
       {
         initialResponse: {},
@@ -66,23 +71,3 @@ import {
       execute: execute,
     };
   }
-
-  export function useFetchFavoritesApi(): ApiSet<FavoritesResponse> & {
-    execute: (accountAddress: string) => void;
-  } {
-    const api = useShowApi<FavoritesResponse>(new HttpClient(), {
-      initialResponse: { results: [] },
-    });
-
-    const execute = (accountAddress: string): void => {
-      const apiPath = `favorites/user_favorites/`;
-      api.execute(apiPath, { accountAddress });
-    };
-  
-    return {
-      ...api,
-      isSuccess: () => !api.loading && !api.isError,
-      execute: execute,
-    };
-  }
-  
