@@ -66,4 +66,23 @@ import {
       execute: execute,
     };
   }
+
+  export function useFetchFavoritesApi(): ApiSet<FavoritesResponse> & {
+    execute: (accountAddress: string) => void;
+  } {
+    const api = useShowApi<FavoritesResponse>(new HttpClient(), {
+      initialResponse: { results: [] },
+    });
+
+    const execute = (accountAddress: string): void => {
+      const apiPath = `favorites/user_favorites/`;
+      api.execute(apiPath, { accountAddress });
+    };
+  
+    return {
+      ...api,
+      isSuccess: () => !api.loading && !api.isError,
+      execute: execute,
+    };
+  }
   
