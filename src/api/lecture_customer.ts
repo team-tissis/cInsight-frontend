@@ -43,9 +43,13 @@ import {
   }
   
 
-  
-  export type LectureCustomerResponse = {
-    result: [] Customer
+  export type SimpleFavorite = {
+    id: number;
+    volume: number;
+    eoa: string;
+  };
+  type LectureCustomerResponse = BaseResponse & {
+    results: SimpleFavorite[];
   };
 
   export function useFetchLectureCustomerApi(): ApiSet<LectureCustomerResponse> & {
