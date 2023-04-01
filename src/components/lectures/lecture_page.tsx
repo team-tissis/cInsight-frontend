@@ -9,6 +9,9 @@ import {
   useFetchLectureApi,
   usePutLectureApi,
 } from "api/lecture";
+import {
+  useFetchLectureCustomerApi
+} from "api/lecture_customer";
 import { LectureCommetnsList } from "components/comments/comments";
 import {
   Alert,
@@ -60,6 +63,7 @@ const LecturePage = (props: Props) => {
   const FAVO_AMOUNT = 1;
   const params = useParams<{ id: string }>();
   const lectureApi = useFetchLectureApi();
+  const lectureCustomerApi = useFetchLectureCustomerApi()
   const searchForm = useForm<CommentSearchForm>({});
   const globalState = useContext(GlobalStateContext);
   const [movieVisible, setMovieVisible] = useState(false);
@@ -108,6 +112,7 @@ const LecturePage = (props: Props) => {
     globalState.setLoading(putLectureApi.loading);
     if (putLectureApi.isSuccess()) {
       lectureApi.execute(Number(params.id));
+      lectureCustomerApi.execute(params.id);
     }
   }, [putLectureApi.loading]);
 
