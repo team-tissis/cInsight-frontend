@@ -1,5 +1,5 @@
 import contractFuncLocal from "../../broadcast/cInsightScript.s.sol/31337/run-latest.json";
-import contractFuncTestnet from "../../broadcast/cInsightDeploy.s.sol/80001/run-latest.json";
+import contractFuncTestnet from "../../broadcast/cInsightDeploy.s.sol/31337/run-latest.json";
 import { ethers } from "ethers";
 import ChainInsightLogicV1 from "../../abi/LogicV1.sol/ChainInsightLogicV1.json";
 import ChainInsightExecutorV1 from "../../abi/ExecutorV1.sol/ChainInsightExecutorV1.json";
@@ -18,8 +18,8 @@ export async function getSigner() {
     const signer = provider.getSigner(msgSender);
     return signer;
   } else {
-    const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
-    await provider.send('eth_requestAccounts', []);
+    const provider = new ethers.providers.Web3Provider(window.ethereum, 31337);
+    await provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
     return signer;
   }
@@ -40,7 +40,9 @@ export async function getCurrentAccountAddress() {
 
 // スマコンのアドレスを取得
 function getContractAddress(contractName) {
-  const contractFunctions = (LOCAL_FLAG) ? contractFuncLocal : contractFuncTestnet;
+  const contractFunctions = LOCAL_FLAG
+    ? contractFuncLocal
+    : contractFuncTestnet;
   const contractAddress = contractFunctions.transactions.find(
     (v) => v.contractName === contractName
   ).contractAddress;
