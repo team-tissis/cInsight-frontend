@@ -2,10 +2,7 @@ import { User, UserSearchForm } from "entities/user";
 import React, { useContext, useEffect, useState } from "react";
 import { TableParams } from "utils/table_params";
 import { GlobalStateContext } from "contexts/global_state_context";
-import {
-  List,
-  PageHeader,
-} from "antd";
+import { List, PageHeader } from "antd";
 import { useFetchUsersApi } from "api/user";
 import { useEffectSkipFirst, useForm } from "utils/hooks";
 
@@ -32,11 +29,15 @@ const UsersPage = (props: Props): JSX.Element => {
 
   useEffect(() => {
     usersApi.execute();
-  }, [searchForm.object, JSON.stringify(tableParams)]);
+  }, [searchForm.object, tableParams]);
 
   useEffectSkipFirst(() => {
     globalState.setLoading(usersApi.loading);
   }, [usersApi.loading]);
+
+  console.log("start");
+  console.log(usersApi.response.results);
+  console.log("end");
 
   return (
     <>
@@ -60,7 +61,20 @@ const UsersPage = (props: Props): JSX.Element => {
               },
               pageSize: 5,
             }}
-            dataSource={usersApi.response.results}
+            // pagination={{
+            //   onChange: (page) => {
+            //     setTableParams({
+            //       ...tableParams,
+            //       pagination: {
+            //         ...tableParams.pagination,
+            //         current: page,
+            //       },
+            //     });
+            //   },
+            //   pageSize: 5,
+            // }}
+            // dataSource={usersApi.response.results}
+            dataSource={usersApi.response.results || []}
             renderItem={(item) => (
               <List.Item
                 onClick={() => props.history.push(`/users/${item.id}`)}

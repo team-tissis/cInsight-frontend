@@ -66,7 +66,9 @@ export const AvatorView = (address?: string, size?: number) => {
   const [src, setSrc] = useState<string | undefined>();
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
   useEffect(() => {
-    (async function () { setSrc(await fetchAccountImageUrl(address)) })();
+    (async function () {
+      setSrc(await fetchAccountImageUrl(address));
+    })();
   }, []);
   return src === undefined ? (
     <Spin indicator={antIcon} />
