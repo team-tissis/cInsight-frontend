@@ -60,21 +60,34 @@ export async function propose(
   );
   console.log("propose start ...");
   console.log("targets, values, signatures, datas, datatypes, description");
-  console.log(targets, values, signatures, datas, datatypes, description);
+  console.log(
+    targets,
+    [ethers.utils.parseEther(String(values[0]))],
+    signatures,
+    datas,
+    datatypes,
+    description
+  );
   const abiCoder = ethers.utils.defaultAbiCoder;
-  const calldatas = abiCoder.encode([datatypes], [datas]);
+  const calldatas = [];
+  for (var i = 0; i < datas.length; i++) {
+    calldatas.push(abiCoder.encode([datatypes[i]], [datas[i]]));
+  }
+  console.log(calldatas);
+  // const calldatas = abiCoder.encode([datatypes], [datas]);
   console.log("contract set");
+
   const proposalId = await contract.propose(
     targets,
-    values,
+    values, // [ethers.utils.parseEther(String(values))],
     signatures,
     calldatas,
     description
   );
   console.log("propose end ...");
   console.log("proposeResponse:");
-  console.log(proposalId);
-  return proposalId;
+  // console.log(proposalId);
+  return 1; // proposalId;
 }
 
 export async function vote(proposalId, voteResult, reason) {

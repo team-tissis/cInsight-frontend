@@ -26,7 +26,7 @@ const ProposalsPage = (props: Props): JSX.Element => {
   const globalState = useContext(GlobalStateContext);
   const defaultNewProposalForm: Proposal = {
     title: "いいね付与数を倍に増やしませんか？",
-    targets: "0x3a76707E7e789FED03C01282D90d5E0a7D13FC1d",
+    targets: "0x9A676e781A523b5d0C0e43731313A708CB607508", // Proxy のコントラクトアドレス
     values: 0,
     signatures: "setMonthlyDistributedFavoNum(uint16)",
     datas: "20",
@@ -86,11 +86,11 @@ const ProposalsPage = (props: Props): JSX.Element => {
             onCancel={() => setOpenNewProposalForm(false)}
             onOk={() => {
               propose(
-                newProposalForm.object.targets,
-                newProposalForm.object.values,
-                newProposalForm.object.signatures,
-                newProposalForm.object.datas,
-                newProposalForm.object.datatypes,
+                [newProposalForm.object.targets],
+                [newProposalForm.object.values],
+                [newProposalForm.object.signatures],
+                [newProposalForm.object.datas],
+                [newProposalForm.object.datatypes],
                 newProposalForm.object.description
               );
               postProposalApi.execute(newProposalForm);
