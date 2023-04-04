@@ -3,7 +3,7 @@ import { useState } from "react";
 const chainid2name: Record<number, string> = {
   1: "Ethereum Mainnet",
   3: "Ropsten Test Network",
-  80001: "Mumbai",
+  31337: "Mumbai",
 };
 
 export type BaseMetaMaskApiSet<T> = {
