@@ -1,22 +1,7 @@
-import {
-  DatePickerProps,
-  Form as AntdForm,
-  Modal,
-  ModalProps,
-  Space,
-} from "antd";
-import { RangePickerProps } from "antd/lib/date-picker";
-import TextArea from "antd/lib/input/TextArea";
-import {
-  DateField,
-  InputField,
-  RangeField,
-  SelectField,
-  TextAreaField,
-} from "components/shared/input";
-import { Proposal, ProposalStatusList } from "entities/proposal";
-import moment, { Moment } from "moment";
-import { Form, useForm } from "utils/hooks";
+import { Form as AntdForm, Modal, ModalProps } from "antd";
+import { InputField, TextAreaField } from "components/shared/input";
+import { Proposal } from "entities/proposal";
+import { Form } from "utils/hooks";
 
 const FormView = (form: Form<Proposal>): JSX.Element => {
   const layout = {
