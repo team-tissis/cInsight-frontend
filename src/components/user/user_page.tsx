@@ -25,7 +25,7 @@ import {
   fetchConnectedAccountReferralNum,
   fetchMonthlyDistributedFavoNum,
   refer,
-  addFavos
+  addMultiFavos
 } from "api/fetch_sol/sbt";
 import { SimpleFavorite, useFetchFavoritesApi, usePatchFavoriteApi } from "api/favorite";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
@@ -186,13 +186,12 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
   }, [favoritesApi])
 
   const sendDataToChain = async () => {
+    // チェーンにいいねを保存する
+    await addMultiFavos(favoritesApi.response.results)
     for (let step = 0; step < favoritesApi.response.results.length; step++) {
-      console.log({"アドレス": favoritesApi.response.results[step].eoa, 'いいね': favoritesApi.response.results[step].volume})
       try {
-        // オンチェーンにデータを保存する
-        await addFavos(favoritesApi.response.results[step].eoa, favoritesApi.response.results[step].volume);
         // DBのレコードを同期済みに変更する
-        favoritePatchApi.execute({id: favoritesApi.response.results[step].id})
+        // favoritePatchApi.execute({id: favoritesApi.response.results[step].id})
       } catch (error) {
         console.error(error);
       }
@@ -302,7 +301,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
                 <Button
                   type="primary"
                   style={{ marginTop: 20 }}
-                  onClick={ async () => await sendDataToChain() }
+                  onClick={ async () => await sendDataToChain()}
                 >
                   獲得したいいねをチェーンに反映させる
                 </Button>

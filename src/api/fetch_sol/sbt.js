@@ -16,6 +16,7 @@ const functionNames = [
   "burn",
   "monthInit",
   "addFavos",
+  "addFavosFromMultipleUsers",
   "refer",
 ];
 const sbtAbi = getSbtAbiAddedImp(functionNames);
@@ -112,12 +113,12 @@ export async function mint(address) {
     if (address === undefined) {
       // mint
       const { contract } = await getContract("Bonfire");
-      const options = { value: ethers.utils.parseEther("0.002") };
+      const options = { value: ethers.utils.parseEther("0.2") };
       mintIndex = await contract.mint(options);
     } else {
       // mint with referral
       const { contract } = await getContract("Bonfire", sbtAbi);
-      const options = { value: ethers.utils.parseEther("0.002") };
+      const options = { value: ethers.utils.parseEther("0.2") };
       mintIndex = await contract.mintWithReferral(address, options);
     }
     console.log({ mintIndex });
@@ -155,6 +156,21 @@ export async function sendMultiFavos(address, num) {
                       value: ethers.utils.parseEther("0.01"),
                       nonce: nonce,
                   });
+}
+
+export async function addMultiFavos(favoritList) {
+  const { contract } = await getContract("Bonfire", sbtAbi);
+  const addressList = []
+  const favoAmountList = []
+  for (let i = 0; i < favoritList.length; i++) {
+    addressList.push(favoritList[i].eoa)
+    favoAmountList.push(favoritList[i].volume)
+  }
+  console.log(contract)
+  console.log({アドレスリスト: addressList, いいねリスト: favoAmountList})
+  // 空の配列で実験
+  // await contract.addFavosFromMultipleUsers([], []);
+  await contract.addFavosFromMultipleUsers(addressList, favoAmountList);
 }
 
 
