@@ -388,11 +388,7 @@ export function usePostRawApi<T extends BaseResponse, U>(
     }
     setLoading(true);
     try {
-      const result = await httpClient.post(
-        apiPath,
-        form,
-        option?.formatJson
-      );
+      const result = await httpClient.post(apiPath, form, option?.formatJson);
       const data: T = result.data;
       if (data.message) {
         globalState.setNotificationMessage({
@@ -422,7 +418,6 @@ export function usePostRawApi<T extends BaseResponse, U>(
     clearApiError,
   };
 }
-
 
 export function usePatchApi<T extends BaseResponse, U>(
   httpClient: IHttpClient,
