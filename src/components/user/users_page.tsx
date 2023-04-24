@@ -80,7 +80,7 @@ const UsersPage = (props: Props): JSX.Element => {
                 onClick={() => props.history.push(`/users/${item.id}`)}
                 key={item.token}
               >
-                {UserListView(item)}
+                <UserListView user={item} />
               </List.Item>
             )}
           />
