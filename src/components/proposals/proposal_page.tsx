@@ -70,7 +70,7 @@ const ProposalPage = (props: Props) => {
     proposerEoa: "nisshimo",
   });
   const putProposalApi = usePutProposalApi();
-  const [postProposal, setPostProposal] = useState<number>(0)
+  const [postProposal, setPostProposal] = useState<number>(0);
 
   useEffect(() => {
     proposalApi.execute(Number(params.id));
@@ -304,21 +304,6 @@ const ProposalPage = (props: Props) => {
                   </div>
                 </StatistcsLikeBlock>
               </Col>
-              {/*
-              <Col span={12}>
-                <StatistcsLikeBlock title="コールデータ">
-                  <div
-                    style={{
-                      fontSize: 20,
-                      whiteSpace: "pre-line",
-                      lineHeight: 1.2,
-                    }}
-                  >
-                    {calldatas}
-                  </div>
-                </StatistcsLikeBlock>
-              </Col>
-              */}
               <Col span={12}>
                 <StatistcsLikeBlock title="データ">
                   <div
@@ -339,7 +324,7 @@ const ProposalPage = (props: Props) => {
           style={{
             width: "100%",
           }}
-          title="提案内容の詳細"
+          title="提案内容の説明"
         >
           <Typography>
             <Paragraph style={{ whiteSpace: "pre-line" }}>

@@ -83,14 +83,13 @@ const LecturePage = (props: Props) => {
     lectureApi.execute(Number(params.id));
   }, [forceReloading]);
 
-
   useEffect(() => {
     // ToDo1: アカウントアドレスを取得
     (async () => {
-        const _accountAddress = await getCurrentAccountAddress();
-        console.log({自分のアカウントアドレス: _accountAddress})
-        setAccountAddress(_accountAddress);
-        userApiByAccountAddress.execute(_accountAddress!);
+      const _accountAddress = await getCurrentAccountAddress();
+      console.log({ 自分のアカウントアドレス: _accountAddress });
+      setAccountAddress(_accountAddress);
+      userApiByAccountAddress.execute(_accountAddress!);
     })();
   }, []);
 
@@ -125,17 +124,19 @@ const LecturePage = (props: Props) => {
     setOpenEditLectureForm(true);
     editLectureForm.set(() => lecture() ?? {});
   };
-  
 
   const handleAddFavos = () => {
     // setした後にDOMの読み込みが走ってからでないと、値の更新はされない
-    const formVal : FavoriteForm = {lecture_id: lecture()?.id, eoa: userApiByAccountAddress.response.user.eoa}
+    const formVal: FavoriteForm = {
+      lecture_id: lecture()?.id,
+      eoa: userApiByAccountAddress.response.user.eoa,
+    };
     // DBへのいいねの反映
     postFavoriteApi.execute(formVal);
     // スマコンへのいいねの反映
     addFavos(lecture()?.author?.eoa, FAVO_AMOUNT);
     // 再レンダリング
-    setForceReloading((prev) => prev + 1)
+    setForceReloading((prev) => prev + 1);
   };
 
   return (
@@ -184,7 +185,7 @@ const LecturePage = (props: Props) => {
           form={editLectureForm}
         />,
       ]}
-    // subTitle="This is a subtitle"
+      // subTitle="This is a subtitle"
     >
       <PurchaseMovieModal
         open={openPurchaseModal}
@@ -327,10 +328,13 @@ const LecturePage = (props: Props) => {
                 <Button
                   key={"lecture like button"}
                   type="primary"
-                  disabled={(getLectureStatus(lecture() ?? {}) !== "End") || (lecture()?.author?.eoa == accountAddress)}
+                  disabled={
+                    getLectureStatus(lecture() ?? {}) !== "End" ||
+                    lecture()?.author?.eoa == accountAddress
+                  }
                   onClick={() => handleAddFavos()}
                 >
-                    勉強会にいいねを押す
+                  勉強会にいいねを押す
                 </Button>
               </Space>
             </Col>

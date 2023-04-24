@@ -26,11 +26,13 @@ const ProposalsPage = (props: Props): JSX.Element => {
   const globalState = useContext(GlobalStateContext);
   const defaultNewProposalForm: Proposal = {
     title: "いいね付与数を倍に増やしませんか？",
-    targets: "0x9A676e781A523b5d0C0e43731313A708CB607508", // Proxy のコントラクトアドレス
-    values: 0,
-    signatures: "setMonthlyDistributedFavoNum(uint16)",
-    datas: "20",
-    datatypes: "uint16",
+    targets:
+      "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e / 0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e", // Bonfire のコントラクトアドレス
+    values: "0 / 0",
+    signatures:
+      "setMonthlyDistributedFavoNum(uint16) / setMonthlyDistributedFavoNum(uint16)",
+    datas: "20 / 30",
+    datatypes: "uint16 / uint16",
     description:
       "現在，1ヶ月につき10のいいねが付与されていますが，DAOの規模拡大に伴って，良い発表やコメントの数が日に日に増えています．それに伴い，付与数も増やすべきだと考えます．",
     // status: "Active",
@@ -86,11 +88,11 @@ const ProposalsPage = (props: Props): JSX.Element => {
             onCancel={() => setOpenNewProposalForm(false)}
             onOk={() => {
               propose(
-                [newProposalForm.object.targets],
-                [newProposalForm.object.values],
-                [newProposalForm.object.signatures],
-                [newProposalForm.object.datas],
-                [newProposalForm.object.datatypes],
+                newProposalForm.object.targets,
+                newProposalForm.object.values,
+                newProposalForm.object.signatures,
+                newProposalForm.object.datas,
+                newProposalForm.object.datatypes,
                 newProposalForm.object.description
               );
               postProposalApi.execute(newProposalForm);

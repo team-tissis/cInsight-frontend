@@ -1,4 +1,9 @@
-import { getContract, getAbi, getCurrentAccountAddress } from "./utils";
+import {
+  getContract,
+  getAbi,
+  getCurrentAccountAddress,
+  createArrayFromString,
+} from "./utils";
 import { fetchConnectedAccountInfo } from "./sbt";
 import { ethers } from "ethers";
 
@@ -59,15 +64,17 @@ export async function propose(
     proxyExtendedAbi
   );
   console.log("propose start ...");
+
+  targets = createArrayFromString(targets);
+  values = createArrayFromString(values);
+  values = values.map(ethers.utils.parseEther); // ETH -> Wei
+  signatures = createArrayFromString(signatures);
+  datas = createArrayFromString(datas);
+  datatypes = createArrayFromString(datatypes);
+
   console.log("targets, values, signatures, datas, datatypes, description");
-  console.log(
-    targets,
-    [ethers.utils.parseEther(String(values[0]))],
-    signatures,
-    datas,
-    datatypes,
-    description
-  );
+  console.log(targets, values, signatures, datas, datatypes, description);
+
   const abiCoder = ethers.utils.defaultAbiCoder;
   const calldatas = [];
   for (var i = 0; i < datas.length; i++) {
@@ -86,8 +93,8 @@ export async function propose(
   );
   console.log("propose end ...");
   console.log("proposeResponse:");
-  // console.log(proposalId);
-  return 1; // proposalId;
+  console.log(proposalId);
+  return proposalId;
 }
 
 export async function vote(proposalId, voteResult, reason) {
@@ -250,6 +257,14 @@ export async function getAccountVotingInfo(method, proposalId) {
     proxyExtendedAbi
   );
   const accountAddress = await getCurrentAccountAddress();
+
+  if (method == "votes") {
+    console.log("start");
+    const message = await contract.getVotes(accountAddress);
+    console.log("end");
+    return message?.toString();
+  }
+
   const message = await contract.getReceipt(proposalId, accountAddress);
   const grade = await fetchConnectedAccountInfo("gradeOf");
   const hasVoted = message?.hasVoted;
@@ -274,8 +289,8 @@ export async function getAccountVotingInfo(method, proposalId) {
     } else if (message?.support == 2) {
       return "棄権";
     }
-  } else if (method == "votes") {
-    return message?.votes.toString();
+    // } else if (method == "votes") {
+    //   return message?.votes.toString();
   } else if (method == "canCancel") {
     console.log(grade >= 1);
     const proposer = getProposalInfo("proposer", proposalId);
