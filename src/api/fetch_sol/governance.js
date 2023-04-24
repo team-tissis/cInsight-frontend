@@ -265,9 +265,7 @@ export async function getAccountVotingInfo(method, proposalId) {
   const accountAddress = await getCurrentAccountAddress();
 
   if (method == "votes") {
-    console.log("start");
     const message = await contract.getVotes(accountAddress);
-    console.log("end");
     return message?.toString();
   }
 

@@ -35,9 +35,7 @@ const UsersPage = (props: Props): JSX.Element => {
     globalState.setLoading(usersApi.loading);
   }, [usersApi.loading]);
 
-  console.log("start");
   console.log(usersApi.response.results);
-  console.log("end");
 
   return (
     <>
@@ -48,9 +46,7 @@ const UsersPage = (props: Props): JSX.Element => {
         }}
         title={"SBTホルダーリスト"}
       >
-        <ContentBlock
-        // title="勉強会一覧"
-        >
+        <ContentBlock>
           <List
             itemLayout="vertical"
             split={false}
@@ -61,19 +57,6 @@ const UsersPage = (props: Props): JSX.Element => {
               },
               pageSize: 5,
             }}
-            // pagination={{
-            //   onChange: (page) => {
-            //     setTableParams({
-            //       ...tableParams,
-            //       pagination: {
-            //         ...tableParams.pagination,
-            //         current: page,
-            //       },
-            //     });
-            //   },
-            //   pageSize: 5,
-            // }}
-            // dataSource={usersApi.response.results}
             dataSource={usersApi.response.results || []}
             renderItem={(item) => (
               <List.Item
