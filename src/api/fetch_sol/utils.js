@@ -72,10 +72,14 @@ export async function getContract(contractName, abi) {
 
 /**
  * 文字列を「/」で区切り、前後の空白文字を削除して、配列に変換する関数
- * @param {string} input 区切りたい文字列
+ * @param {string | undefined} input 区切りたい文字列
  * @returns {Array} 区切られた文字列を要素に持つ配列
  * e.g.) "x/ y /z" -> ["x", "y", "z"]
  */
 export function createArrayFromString(input) {
-  return input.split("/").map((item) => item.trim());
+  if (input === undefined) {
+    return [""];
+  } else {
+    return input.split("/").map((item) => item.trim());
+  }
 }

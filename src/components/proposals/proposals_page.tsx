@@ -1,11 +1,8 @@
-import { Flex } from "components/shared/flex";
-import { proposalData } from "sample_data/proposal";
 import { Proposal, ProposalSearchForm } from "entities/proposal";
 import React, { useContext, useEffect, useState } from "react";
 import { TableParams } from "utils/table_params";
 import { GlobalStateContext } from "contexts/global_state_context";
 import { Button, List, PageHeader, Space, Tabs, Tag } from "antd";
-import { sleep } from "utils/util";
 import { NewProposalForm } from "./proposal_form";
 import { useFetchProposalsApi, usePostProposalApi } from "api/proposal";
 import { useEffectSkipFirst, useForm } from "utils/hooks";
