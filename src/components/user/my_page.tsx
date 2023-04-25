@@ -38,7 +38,7 @@ type Props = {
 
 export const MyPage = (props: Props) => {
   // const checkHasSbtApi = useCheckHasSbtApi();
-  const [postForm, setPostForm] = useState<number>(0)
+  const [postForm, setPostForm] = useState<number>(0);
   const [hasSbt, setHasSbt] = useState();
   useEffect(() => {
     (async function () {
@@ -49,6 +49,7 @@ export const MyPage = (props: Props) => {
   // useEffect(() => {
   //   checkHasSbtApi.execute();
   // }, []);
+  console.log({ hasSbt: hasSbt });
 
   return (
     <PageHeader
@@ -57,22 +58,26 @@ export const MyPage = (props: Props) => {
         backgroundColor: "inherit",
       }}
       title={"マイページ"}
-    // extra={[
-    //   <Form.Item label="SBT" key="switch has sbt flag">
-    //     <Switch
-    //       checkedChildren={"Exist"}
-    //       unCheckedChildren={"Not Exist"}
-    //       checked={checkHasSbtApi.response?.hasSbt}
-    //       onChange={(hasSbt) => {
-    //         checkHasSbtApi.setResponse({ hasSbt });
-    //       }}
-    //     />
-    //   </Form.Item>,
-    // ]}
+      // extra={[
+      //   <Form.Item label="SBT" key="switch has sbt flag">
+      //     <Switch
+      //       checkedChildren={"Exist"}
+      //       unCheckedChildren={"Not Exist"}
+      //       checked={checkHasSbtApi.response?.hasSbt}
+      //       onChange={(hasSbt) => {
+      //         checkHasSbtApi.setResponse({ hasSbt });
+      //       }}
+      //     />
+      //   </Form.Item>,
+      // ]}
     >
       {/* {checkHasSbtApi.response?.hasSbt ? ( */}
       {/* <Skeleton loading={hasSbt === undefined}> */}
-      {hasSbt != 0 ? <UserPageContent isMyPage /> : <MyPageWithoutSbt setPostForm={setPostForm}/>}
+      {hasSbt != 0 ? (
+        <UserPageContent isMyPage />
+      ) : (
+        <MyPageWithoutSbt setPostForm={setPostForm} />
+      )}
       {/* </Skeleton> */}
     </PageHeader>
   );
@@ -110,21 +115,26 @@ const MyPageWithoutSbt = (props: MyPageWithoutSbtProps) => {
           console.log({ user: account });
           // postする処理
           try {
-            const success: boolean  = await mint(createUserSbtForm.object.referencerAddress);
-            if(!success) {
+            const success: boolean = await mint(
+              createUserSbtForm.object.referencerAddress
+            );
+            if (!success) {
               notification.config({
                 maxCount: 1,
               });
               notification["error"]({
-                message: "エラーが発生したため、ミントできませんでした。\n紹介者アドレスが有効か再度確認してください。",
+                message:
+                  "エラーが発生したため、ミントできませんでした。\n紹介者アドレスが有効か再度確認してください。",
                 style: {
                   backgroundColor: "#FFF2F0",
                 },
               });
-              throw new Error('エラーが発生したため、ミントできませんでした。紹介者アドレスが有効か再度確認してください。')
+              throw new Error(
+                "エラーが発生したため、ミントできませんでした。紹介者アドレスが有効か再度確認してください。"
+              );
             }
             createUserSbtForm.updateObject("eoa", account);
-            props.setPostForm((prev: number) => prev + 1)
+            props.setPostForm((prev: number) => prev + 1);
           } catch (e) {
             console.error(e);
           }

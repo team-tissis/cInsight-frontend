@@ -1,16 +1,6 @@
-import {
-  Button,
-  Col,
-  PageHeader,
-  Row,
-  Space,
-  Statistic,
-} from "antd";
+import { Button, Col, PageHeader, Row, Space, Statistic } from "antd";
 import { ContentBlock } from "components/shared/content_block";
-import {
-  LikeOutlined,
-  SyncOutlined
-} from "@ant-design/icons";
+import { LikeOutlined, SyncOutlined } from "@ant-design/icons";
 import { UserProfileView } from "./user_view";
 import { User } from "entities/user";
 import { StatistcsLikeBlock } from "components/shared/statistics_like_block";
@@ -25,9 +15,13 @@ import {
   fetchConnectedAccountReferralNum,
   fetchMonthlyDistributedFavoNum,
   refer,
-  addMultiFavos
+  addMultiFavos,
 } from "api/fetch_sol/sbt";
-import { SimpleFavorite, useFetchFavoritesApi, usePatchFavoriteApi } from "api/favorite";
+import {
+  SimpleFavorite,
+  useFetchFavoritesApi,
+  usePatchFavoriteApi,
+} from "api/favorite";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
 import {
   useFetchUserApi,
@@ -75,7 +69,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
   const [referral, setReferral] = useState();
   const [referralRemain, setReferralRemain] = useState();
   const [monthlyDistributedFavoNum, setMonthlyDistributedFavoNum] = useState();
-  
+
   const favoritesApi = useFetchFavoritesApi();
   const favoritePatchApi = usePatchFavoriteApi();
   const globalState = useContext(GlobalStateContext);
@@ -108,7 +102,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
       // マイページのとき
       userApiByAccountAddress.execute(accountAddress);
       (async function () {
-        setUrl(await fetchAccountImageUrl())
+        setUrl(await fetchAccountImageUrl());
         setFavo(await fetchConnectedAccountInfo("favoOf"));
         setGrade(await fetchConnectedAccountInfo("gradeOf"));
         setMaki(await fetchConnectedAccountInfo("makiOf"));
@@ -129,7 +123,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
   }, [userApiByAccountAddress.loading]);
 
   useEffect(() => {
-    if ( accountAddress != null){
+    if (accountAddress != null) {
       favoritesApi.execute(accountAddress!);
     }
   }, [accountAddress]);
@@ -139,7 +133,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
     if (userApi.isSuccess() && !props.isMyPage) {
       // この部分が実行されるのは、マイページではないときのみ
       (async function () {
-        setUrl(await fetchAccountImageUrl(userApi.response.user.eoa))
+        setUrl(await fetchAccountImageUrl(userApi.response.user.eoa));
         setFavo(
           await fetchConnectedAccountInfo("favoOf", userApi.response.user.eoa)
         );
@@ -177,17 +171,20 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
     }
   }, [putUserApi.loading]);
 
-  useEffect(()=> {
+  useEffect(() => {
     let favoTotalVal = 0;
     for (let step = 0; step < favoritesApi.response.results.length; step++) {
-      favoTotalVal += favoritesApi.response.results[step].volume
+      favoTotalVal += favoritesApi.response.results[step].volume;
     }
-    setFavoTotalVal(favoTotalVal)
-  }, [favoritesApi])
+    setFavoTotalVal(favoTotalVal);
+  }, [favoritesApi]);
 
   const sendDataToChain = async () => {
     // チェーンにいいねを保存する
-    await addMultiFavos(favoritesApi.response.results)
+    console.log({
+      favoritesApi_response_results: favoritesApi.response.results,
+    });
+    await addMultiFavos(favoritesApi.response.results);
     for (let step = 0; step < favoritesApi.response.results.length; step++) {
       try {
         // DBのレコードを同期済みに変更する
@@ -196,7 +193,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
         console.error(error);
       }
     }
-  }
+  };
 
   return (
     <>
@@ -286,44 +283,46 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
               </StatistcsLikeBlock>
             </Col>
             <Col span={16}>
-                <StatistcsLikeBlock title="いいねを同期">
+              <StatistcsLikeBlock title="いいねを同期">
                 <Space direction="vertical">
                   <Space style={{ alignItems: "center" }}>
                     <SyncOutlined
                       style={{
                         verticalAlign: 2,
                       }}
-                    /> 
-                    { favoTotalVal }
+                    />
+                    {favoTotalVal}
                   </Space>
                 </Space>
-                </StatistcsLikeBlock>
-                <Button
-                  type="primary"
-                  style={{ marginTop: 20 }}
-                  onClick={ async () => await sendDataToChain()}
-                >
-                  獲得したいいねをチェーンに反映させる
-                </Button>
-              </Col>
+              </StatistcsLikeBlock>
+              <Button
+                type="primary"
+                style={{ marginTop: 20 }}
+                onClick={async () => await sendDataToChain()}
+              >
+                獲得したいいねをチェーンに反映させる
+              </Button>
+            </Col>
           </Row>
         </ContentBlock>
-        {props.isMyPage && (<>
-          <ContentBlock title="リファラル">
-            <StatistcsLikeBlock title="リファラル数（翌月にリセットされます）">
-              {referral} / {referralRemain}
-            </StatistcsLikeBlock>
-            <Button
-              type="primary"
-              style={{ marginTop: 20 }}
+        {props.isMyPage && (
+          <>
+            <ContentBlock title="リファラル">
+              <StatistcsLikeBlock title="リファラル数（翌月にリセットされます）">
+                {referral} / {referralRemain}
+              </StatistcsLikeBlock>
+              <Button
+                type="primary"
+                style={{ marginTop: 20 }}
                 onClick={() => {
                   setOpenRefaralForm(true);
                 }}
               >
                 新規リファラル
-            </Button>
-          </ContentBlock>
-        </>)}
+              </Button>
+            </ContentBlock>
+          </>
+        )}
       </Space>
     </>
   );

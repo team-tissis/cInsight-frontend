@@ -8,10 +8,8 @@ import BonfireProxy from "../../abi/BonfireProxy.sol/Bonfire.json";
 import BonfireLogic from "../../abi/BonfireLogic.sol/BonfireLogic.json";
 import SkinNft from "../../abi/SkinNft.sol/SkinNft.json";
 
-// const msgSender = Number(process.env.REACT_APP_MSG_SENDER);
-
 // ユーザーを切り替える際は、環境変数読み込みではなく、msgSenderの変数を直接書き換える
-const msgSender = 1
+const msgSender = Number(process.env.REACT_APP_MSG_SENDER);
 const LOCAL_FLAG = JSON.parse(process.env.REACT_APP_LOCAL_FLAG.toLowerCase());
 
 // signerを取得
@@ -21,13 +19,12 @@ export async function getSigner() {
     const signer = provider.getSigner(msgSender);
     return signer;
   } else {
-    const provider = new ethers.providers.Web3Provider(window.ethereum, 31337);
+    const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
     await provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
     return signer;
   }
 }
-
 
 // providerを取得
 export async function getProvider() {

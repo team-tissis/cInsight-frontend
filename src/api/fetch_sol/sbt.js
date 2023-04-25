@@ -1,5 +1,10 @@
 import { ethers } from "ethers";
-import { getContract, getAbi, getCurrentAccountAddress, getProvider } from "./utils";
+import {
+  getContract,
+  getAbi,
+  getCurrentAccountAddress,
+  getProvider,
+} from "./utils";
 
 function getSbtAbiAddedImp(_functionNames) {
   const abi = getAbi("Bonfire");
@@ -151,28 +156,27 @@ export async function sendMultiFavos(address, num) {
   const provider = await getProvider();
   const nonce = await provider.getTransactionCount(contract.address);
   const tx = await contract.addFavos(address, num, {
-                      // gasLimit: gasLimit,
-                      // gasPrice: gasPrice,
-                      value: ethers.utils.parseEther("0.01"),
-                      nonce: nonce,
-                  });
+    // gasLimit: gasLimit,
+    // gasPrice: gasPrice,
+    value: ethers.utils.parseEther("0.01"),
+    nonce: nonce,
+  });
 }
 
 export async function addMultiFavos(favoritList) {
   const { contract } = await getContract("Bonfire", sbtAbi);
-  const addressList = []
-  const favoAmountList = []
+  const addressList = [];
+  const favoAmountList = [];
   for (let i = 0; i < favoritList.length; i++) {
-    addressList.push(favoritList[i].eoa)
-    favoAmountList.push(favoritList[i].volume)
+    addressList.push(favoritList[i].eoa);
+    favoAmountList.push(favoritList[i].volume);
   }
-  console.log(contract)
-  console.log({アドレスリスト: addressList, いいねリスト: favoAmountList})
+  console.log(contract);
+  console.log({ アドレスリスト: addressList, いいねリスト: favoAmountList });
   // 空の配列で実験
   // await contract.addFavosFromMultipleUsers([], []);
   await contract.addFavosFromMultipleUsers(addressList, favoAmountList);
 }
-
 
 export async function _addFavos(address, num) {
   const { contract } = await getContract("Bonfire", sbtAbi);
@@ -187,7 +191,7 @@ export async function addFavos(address, num) {
   try {
     _addFavos(address, num);
     // sendMultiFavos(address, num)
-    console.log("favo saved")
+    console.log("favo saved");
   } catch (e) {
     console.log(e);
     throw new Error(e);
