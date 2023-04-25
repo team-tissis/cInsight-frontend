@@ -37,7 +37,7 @@ type Props = {
 
 export const MyPage = (props: Props) => {
   // const checkHasSbtApi = useCheckHasSbtApi();
-  const [postForm, setPostForm] = useState<number>(0)
+  const [postForm, setPostForm] = useState<number>(0);
   const [hasSbt, setHasSbt] = useState();
   useEffect(() => {
     (async function () {
@@ -56,22 +56,26 @@ export const MyPage = (props: Props) => {
         backgroundColor: "inherit",
       }}
       title={"マイページ"}
-    // extra={[
-    //   <Form.Item label="SBT" key="switch has sbt flag">
-    //     <Switch
-    //       checkedChildren={"Exist"}
-    //       unCheckedChildren={"Not Exist"}
-    //       checked={checkHasSbtApi.response?.hasSbt}
-    //       onChange={(hasSbt) => {
-    //         checkHasSbtApi.setResponse({ hasSbt });
-    //       }}
-    //     />
-    //   </Form.Item>,
-    // ]}
+      // extra={[
+      //   <Form.Item label="SBT" key="switch has sbt flag">
+      //     <Switch
+      //       checkedChildren={"Exist"}
+      //       unCheckedChildren={"Not Exist"}
+      //       checked={checkHasSbtApi.response?.hasSbt}
+      //       onChange={(hasSbt) => {
+      //         checkHasSbtApi.setResponse({ hasSbt });
+      //       }}
+      //     />
+      //   </Form.Item>,
+      // ]}
     >
       {/* {checkHasSbtApi.response?.hasSbt ? ( */}
       {/* <Skeleton loading={hasSbt === undefined}> */}
-      {hasSbt != 0 ? <UserPageContent isMyPage /> : <MyPageWithoutSbt setPostForm={setPostForm}/>}
+      {hasSbt != 0 ? (
+        <UserPageContent isMyPage />
+      ) : (
+        <MyPageWithoutSbt setPostForm={setPostForm} />
+      )}
       {/* </Skeleton> */}
     </PageHeader>
   );
@@ -114,8 +118,10 @@ const MyPageWithoutSbt = (props: MyPageWithoutSbtProps) => {
           console.log({ user: account });
           // postする処理
           try {
-            const response: MintResponse  = await mint(createUserSbtForm.object.referencerAddress);
-            if(!response.status) {
+            const response: MintResponse = await mint(
+              createUserSbtForm.object.referencerAddress
+            );
+            if (!response.status) {
               notification.config({
                 maxCount: 1,
               });
@@ -125,10 +131,10 @@ const MyPageWithoutSbt = (props: MyPageWithoutSbtProps) => {
                   backgroundColor: "#FFF2F0",
                 },
               });
-              throw new Error(response.message)
+              throw new Error(response.message);
             }
             createUserSbtForm.updateObject("eoa", account);
-            props.setPostForm((prev: number) => prev + 1)
+            props.setPostForm((prev: number) => prev + 1);
             notification["success"]({
               message: response.message,
               style: {

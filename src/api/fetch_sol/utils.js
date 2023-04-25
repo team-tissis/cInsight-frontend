@@ -19,7 +19,7 @@ export async function getSigner() {
     return signer;
   } else {
     const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
-    await provider.send('eth_requestAccounts', []);
+    await provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
     return signer;
   }
@@ -40,7 +40,9 @@ export async function getCurrentAccountAddress() {
 
 // スマコンのアドレスを取得
 function getContractAddress(contractName) {
-  const contractFunctions = (LOCAL_FLAG) ? contractFuncLocal : contractFuncTestnet;
+  const contractFunctions = LOCAL_FLAG
+    ? contractFuncLocal
+    : contractFuncTestnet;
   const contractAddress = contractFunctions.transactions.find(
     (v) => v.contractName === contractName
   ).contractAddress;
@@ -63,7 +65,7 @@ export function getAbi(contractName) {
 export async function getContract(contractName, abi) {
   if (abi === undefined) abi = getAbi(contractName);
   const contractAddress = getContractAddress(contractName);
-  console.log({コントラクトアドレス: contractAddress})
+  console.log({ コントラクトアドレス: contractAddress });
   const signer = await getSigner();
   const contract = new ethers.Contract(contractAddress, abi, signer);
   return { contractAddress, signer, contract };
