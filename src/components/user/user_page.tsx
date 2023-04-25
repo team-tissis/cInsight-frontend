@@ -188,11 +188,13 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
     for (let step = 0; step < favoritesApi.response.results.length; step++) {
       try {
         // DBのレコードを同期済みに変更する
-        // favoritePatchApi.execute({id: favoritesApi.response.results[step].id})
+        favoritePatchApi.execute({id: favoritesApi.response.results[step].id})
       } catch (error) {
         console.error(error);
       }
     }
+    // リロード
+    location.reload();
   };
 
   return (
