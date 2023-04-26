@@ -362,6 +362,63 @@ export function usePostApi<T extends BaseResponse, U>(
   };
 }
 
+export function usePostRawApi<T extends BaseResponse, U>(
+  httpClient: IHttpClient,
+  props: ApiArgument<T>,
+  option?: { formatJson?: boolean }
+): ApiSet<T> & { execute: (apiPath: string, form?: U) => void } {
+  const [
+    loading,
+    setLoading,
+    apiError,
+    handleError,
+    isError,
+    isSuccess,
+    isFailure,
+    status,
+    setStatus,
+    clearApiError,
+  ] = useApiState();
+  const [response, setResponse] = useState<T>(props.initialResponse);
+  const globalState = useContext(GlobalStateContext);
+
+  const execute = async (apiPath: string, form?: U) => {
+    if (loading) {
+      return;
+    }
+    setLoading(true);
+    try {
+      const result = await httpClient.post(apiPath, form, option?.formatJson);
+      const data: T = result.data;
+      if (data.message) {
+        globalState.setNotificationMessage({
+          body: data.message,
+          colorType: "success",
+        });
+      }
+      setResponse(() => data);
+      setStatus(result.status);
+    } catch (e) {
+      handleError(e);
+    }
+    setLoading(false);
+  };
+
+  return {
+    loading,
+    setLoading,
+    apiError,
+    response,
+    setResponse,
+    execute,
+    isError,
+    isSuccess,
+    isFailure,
+    status,
+    clearApiError,
+  };
+}
+
 export function usePatchApi<T extends BaseResponse, U>(
   httpClient: IHttpClient,
   props: ApiArgument<T>,
