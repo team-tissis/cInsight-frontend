@@ -36,7 +36,8 @@ export type Proposal = {
   forCount?: number;
   againstCount?: number;
   targets?: string;
-  values?: number;
+  // values?: number;
+  values?: string;
   signatures?: string;
   datas?: string;
   datatypes?: string;

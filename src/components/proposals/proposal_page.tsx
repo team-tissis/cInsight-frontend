@@ -2,52 +2,42 @@ import { useParams, withRouter } from "react-router";
 import { QuestionCircleOutlined, StopOutlined } from "@ant-design/icons";
 
 import * as H from "history";
-import { Flex } from "components/shared/flex";
 import { useContext, useEffect, useState } from "react";
 import { useFetchProposalApi, usePutProposalApi } from "api/proposal";
 import {
-  Alert,
   Button,
-  Card,
   Col,
-  Comment,
-  Descriptions,
   Form as AntdForm,
   Modal,
   ModalProps,
   PageHeader,
+  Pagination,
   Popconfirm,
-  Progress,
   Row,
   Skeleton,
   Space,
-  Statistic,
-  Tag,
   Typography,
 } from "antd";
-import { LikeOutlined, LockOutlined, UnlockOutlined } from "@ant-design/icons";
-import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import { GlobalStateContext } from "contexts/global_state_context";
 import { Form, useEffectSkipFirst, useForm, useQuery } from "utils/hooks";
 import { ContentBlock } from "components/shared/content_block";
 
-import Countdown from "antd/lib/statistic/Countdown";
 import { Proposal, ProposalStatus } from "entities/proposal";
-import moment from "moment";
 import { StatistcsLikeBlock } from "components/shared/statistics_like_block";
-import { sleep } from "utils/util";
 import { EditProposalForm } from "./proposal_form";
-import { red, green, grey } from "@ant-design/colors";
 import { ProposalStatusView, ProposalVoteView } from "./proposal_view";
 import { SelectRadioField } from "components/shared/input";
 
 import {
   getProposalCount,
-  getProposalInfo,
+  getProposalMetaInfo,
+  getProposalContents,
   getAccountVotingInfo,
   getState,
   vote,
 } from "api/fetch_sol/governance";
+
+import { createArrayFromString } from "api/fetch_sol/utils";
 
 const { Title, Paragraph, Text, Link } = Typography;
 
@@ -70,26 +60,73 @@ const ProposalPage = (props: Props) => {
     proposerEoa: "nisshimo",
   });
   const putProposalApi = usePutProposalApi();
-  const [postProposal, setPostProposal] = useState<number>(0)
+  const [postProposal, setPostProposal] = useState<number>(0);
+
+  const [targets, setTargets] = useState<any[]>([""]);
+  const [values, setValues] = useState<any[]>([""]);
+  const [signatures, setSignatures] = useState<any[]>([""]);
+  const [proposer, setProposer] = useState();
+  const [hasVoted, setHasVoted] = useState();
+  const [canVote, setCanVote] = useState<boolean | undefined>();
+  const [canCancel, setCanCancel] = useState<boolean | undefined>();
+  const [forVotes, setForVotes] = useState(undefined);
+  const [againstVotes, setAgainstVotes] = useState(undefined);
+  const [support, setSupport] = useState();
+  const [votes, setVotes] = useState();
+  const [debug, setDebug] = useState();
+  const [status, setStatus] = useState<ProposalStatus | undefined>();
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const proposal = (): Proposal | undefined => {
+    return {
+      ...proposalApi.response?.proposal,
+      forCount: Number(forVotes) ?? 0,
+      againstCount: Number(againstVotes) ?? 0,
+      status: status,
+    };
+  };
 
   useEffect(() => {
     proposalApi.execute(Number(params.id));
     (async function () {
-      setProposer(await getProposalInfo("proposer", Number(params.id)));
-      setTargets(await getProposalInfo("targets", Number(params.id)));
-      setValues(await getProposalInfo("values", Number(params.id)));
-      setSignatures(await getProposalInfo("signatures", Number(params.id)));
-      setCalldatas(await getProposalInfo("calldatas", Number(params.id)));
+      setProposer(await getProposalMetaInfo("proposer", Number(params.id)));
+      const targets_ = await getProposalContents("targets", Number(params.id));
+      const values_ = await getProposalContents("values", Number(params.id));
+      const signatures_ = await getProposalContents(
+        "signatures",
+        Number(params.id)
+      );
+      setTargets(targets_);
+      setValues(values_);
+      setSignatures(signatures_);
+      // useState が非同期処理であることに注意して、getProposalContents の出力を直接代入する
+      setTarget(targets_[0]);
+      setValue(values_[0]);
+      setSignature(signatures_[0]);
+
       setHasVoted(await getAccountVotingInfo("hasVoted", Number(params.id)));
       setCanVote(await getAccountVotingInfo("canVote", Number(params.id)));
       setCanCancel(await getAccountVotingInfo("canCancel", Number(params.id)));
-      setForVotes(await getProposalInfo("forVotes", Number(params.id)));
-      setAgainstVotes(await getProposalInfo("againstVotes", Number(params.id)));
+      setForVotes(await getProposalMetaInfo("forVotes", Number(params.id)));
+      setAgainstVotes(
+        await getProposalMetaInfo("againstVotes", Number(params.id))
+      );
       setSupport(await getAccountVotingInfo("support", Number(params.id)));
       setVotes(await getAccountVotingInfo("votes", Number(params.id)));
       setDebug(await getAccountVotingInfo("canCancel", Number(params.id)));
     })();
   }, [postProposal]);
+
+  const [target, setTarget] = useState();
+  const [value, setValue] = useState();
+  const [signature, setSignature] = useState();
+  const [data, setData] = useState();
+
+  // proposalApi.execute が非同期処理であることに注意して、関数の実行を検知した後、data を初期化
+  useEffect(() => {
+    setData(createArrayFromString(proposal()?.datas)[0]);
+  }, [proposalApi.response]);
 
   useEffectSkipFirst(() => {
     globalState.setLoading(proposalApi.loading);
@@ -109,43 +146,14 @@ const ProposalPage = (props: Props) => {
     }
   }, [putProposalApi.loading]);
 
-  const [targets, setTargets] = useState();
-  const [values, setValues] = useState();
-  const [signatures, setSignatures] = useState();
-  const [calldatas, setCalldatas] = useState();
-  const [proposer, setProposer] = useState();
-  const [hasVoted, setHasVoted] = useState();
-  const [canVote, setCanVote] = useState<boolean | undefined>();
-  const [canCancel, setCanCancel] = useState<boolean | undefined>();
-  const [forVotes, setForVotes] = useState(undefined);
-  const [againstVotes, setAgainstVotes] = useState(undefined);
-  const [support, setSupport] = useState();
-  const [votes, setVotes] = useState();
-  const [debug, setDebug] = useState();
-  const [status, setStatus] = useState<ProposalStatus | undefined>();
-
-  const proposal = (): Proposal | undefined => {
-    return {
-      ...proposalApi.response?.proposal,
-      forCount: Number(forVotes) ?? 0,
-      againstCount: Number(againstVotes) ?? 0,
-      status: status,
-    };
+  const handlePageChange = (page: number) => {
+    console.log(page);
+    setCurrentPage(page);
+    setTarget(targets[page - 1]);
+    setValue(values[page - 1]);
+    setSignature(signatures[page - 1]);
+    setData(createArrayFromString(proposal()?.datas)[page - 1]);
   };
-
-  console.log(
-    `canVote: ${canVote} \n`,
-    `canCancel: ${canCancel} \n`,
-    `forVotes (assume its type is number): ${forVotes} \n`,
-    `againstVotes (assume its type is number): ${againstVotes} \n`
-  );
-
-  const handleEditModalOpen = () => {
-    setOpenEditProposalForm(true);
-    editProposalForm.set(() => proposal() ?? {});
-  };
-
-  console.log(hasVoted);
 
   return (
     <PageHeader
@@ -177,13 +185,6 @@ const ProposalPage = (props: Props) => {
             Cancel
           </Button>
         </Popconfirm>,
-        // <Button
-        //   key={"proposal apply button"}
-        //   style={{ width: "100%" }}
-        //   onClick={handleEditModalOpen}
-        // >
-        //   編集
-        // </Button>,
         <EditProposalForm
           open={openEditProposalForm}
           onCancel={() => setOpenEditProposalForm(false)}
@@ -195,7 +196,6 @@ const ProposalPage = (props: Props) => {
           form={editProposalForm}
         />,
       ]}
-      // subTitle="This is a subtitle"
     >
       <Space style={{ width: "100%" }} size={20} direction="vertical">
         <Space size={20}>
@@ -271,7 +271,7 @@ const ProposalPage = (props: Props) => {
                       lineHeight: 1.2,
                     }}
                   >
-                    {targets}
+                    {target}
                   </div>
                 </StatistcsLikeBlock>
               </Col>
@@ -284,7 +284,7 @@ const ProposalPage = (props: Props) => {
                       lineHeight: 1.2,
                     }}
                   >
-                    {values}
+                    {value}
                   </div>
                 </StatistcsLikeBlock>
               </Col>
@@ -300,25 +300,10 @@ const ProposalPage = (props: Props) => {
                       lineHeight: 1.2,
                     }}
                   >
-                    {signatures}
+                    {signature}
                   </div>
                 </StatistcsLikeBlock>
               </Col>
-              {/*
-              <Col span={12}>
-                <StatistcsLikeBlock title="コールデータ">
-                  <div
-                    style={{
-                      fontSize: 20,
-                      whiteSpace: "pre-line",
-                      lineHeight: 1.2,
-                    }}
-                  >
-                    {calldatas}
-                  </div>
-                </StatistcsLikeBlock>
-              </Col>
-              */}
               <Col span={12}>
                 <StatistcsLikeBlock title="データ">
                   <div
@@ -328,18 +313,28 @@ const ProposalPage = (props: Props) => {
                       lineHeight: 1.2,
                     }}
                   >
-                    {proposal()?.datas}
+                    {data}
                   </div>
                 </StatistcsLikeBlock>
               </Col>
             </Row>
+            {targets.length > 0 && (
+              <div style={{ marginTop: "0.75cm" }}>
+                <Pagination
+                  current={currentPage}
+                  onChange={handlePageChange}
+                  pageSize={1}
+                  total={targets.length}
+                />
+              </div>
+            )}
           </ContentBlock>
         </Space>
         <ContentBlock
           style={{
             width: "100%",
           }}
-          title="提案内容の詳細"
+          title="提案内容の説明"
         >
           <Typography>
             <Paragraph style={{ whiteSpace: "pre-line" }}>

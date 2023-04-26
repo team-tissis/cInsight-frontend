@@ -1,5 +1,5 @@
 import contractFuncLocal from "../../broadcast/cInsightScript.s.sol/31337/run-latest.json";
-import contractFuncTestnet from "../../broadcast/cInsightScript.s.sol/31337/run-latest.json";
+import contractFuncTestnet from "../../broadcast/cInsightDeploy.s.sol/31337/run-latest.json";
 import { ethers } from "ethers";
 import ChainInsightLogicV1 from "../../abi/LogicV1.sol/ChainInsightLogicV1.json";
 import ChainInsightExecutorV1 from "../../abi/ExecutorV1.sol/ChainInsightExecutorV1.json";
@@ -69,4 +69,18 @@ export async function getContract(contractName, abi) {
   const signer = await getSigner();
   const contract = new ethers.Contract(contractAddress, abi, signer);
   return { contractAddress, signer, contract };
+}
+
+/**
+ * 文字列を「/」で区切り、前後の空白文字を削除して、配列に変換する関数
+ * @param {string | undefined} input 区切りたい文字列
+ * @returns {Array} 区切られた文字列を要素に持つ配列
+ * e.g.) "x/ y /z" -> ["x", "y", "z"]
+ */
+export function createArrayFromString(input) {
+  if (input === undefined) {
+    return [""];
+  } else {
+    return input.split("/").map((item) => item.trim());
+  }
 }

@@ -1,11 +1,8 @@
-import { Flex } from "components/shared/flex";
-import { proposalData } from "sample_data/proposal";
 import { Proposal, ProposalSearchForm } from "entities/proposal";
 import React, { useContext, useEffect, useState } from "react";
 import { TableParams } from "utils/table_params";
 import { GlobalStateContext } from "contexts/global_state_context";
 import { Button, List, PageHeader, Space, Tabs, Tag } from "antd";
-import { sleep } from "utils/util";
 import { NewProposalForm } from "./proposal_form";
 import { useFetchProposalsApi, usePostProposalApi } from "api/proposal";
 import { useEffectSkipFirst, useForm } from "utils/hooks";
@@ -26,11 +23,13 @@ const ProposalsPage = (props: Props): JSX.Element => {
   const globalState = useContext(GlobalStateContext);
   const defaultNewProposalForm: Proposal = {
     title: "いいね付与数を倍に増やしませんか？",
-    targets: "0x3a76707E7e789FED03C01282D90d5E0a7D13FC1d",
-    values: 0,
-    signatures: "setMonthlyDistributedFavoNum(uint16)",
-    datas: "20",
-    datatypes: "uint16",
+    targets:
+      "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e / 0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e", // Bonfire のコントラクトアドレス
+    values: "0 / 0",
+    signatures:
+      "setMonthlyDistributedFavoNum(uint16) / setMonthlyDistributedFavoNum(uint16)",
+    datas: "20 / 30",
+    datatypes: "uint16 / uint16",
     description:
       "現在，1ヶ月につき10のいいねが付与されていますが，DAOの規模拡大に伴って，良い発表やコメントの数が日に日に増えています．それに伴い，付与数も増やすべきだと考えます．",
     // status: "Active",

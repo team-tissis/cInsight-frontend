@@ -15,6 +15,11 @@ import { fetchAccountImageUrl } from "api/fetch_sol/sbt";
 import { User } from "entities/user";
 import { useEffect, useState } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
+import { userInfo } from "os";
+
+type UserListViewProps = {
+  user: User;
+};
 
 export const UserProfileView = (user: User, userUrl?: string) => {
   return (
@@ -34,7 +39,7 @@ export const UserProfileView = (user: User, userUrl?: string) => {
   );
 };
 
-export const UserListView = (user: User, loading = false) => {
+export const UserListView = (props: UserListViewProps): JSX.Element => {
   const [isHover, setIsHover] = useState(false);
 
   const handleMouseEnter = () => {
@@ -51,11 +56,11 @@ export const UserListView = (user: User, loading = false) => {
       onMouseOver={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <Skeleton avatar title={false} loading={loading} active>
+      <Skeleton avatar title={false} loading={false} active>
         <List.Item.Meta
-          avatar={AvatorView(user.eoa)}
-          title={user.name}
-          description={<div>token: {user.eoa}</div>}
+          avatar={AvatorView(props.user.eoa)}
+          title={props.user.name}
+          description={<div>token: {props.user.eoa}</div>}
         />
       </Skeleton>
     </Card>
@@ -66,7 +71,9 @@ export const AvatorView = (address?: string, size?: number) => {
   const [src, setSrc] = useState<string | undefined>();
   const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
   useEffect(() => {
-    (async function () { setSrc(await fetchAccountImageUrl(address)) })();
+    (async function () {
+      setSrc(await fetchAccountImageUrl(address));
+    })();
   }, []);
   return src === undefined ? (
     <Spin indicator={antIcon} />

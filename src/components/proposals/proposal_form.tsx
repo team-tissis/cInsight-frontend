@@ -1,22 +1,7 @@
-import {
-  DatePickerProps,
-  Form as AntdForm,
-  Modal,
-  ModalProps,
-  Space,
-} from "antd";
-import { RangePickerProps } from "antd/lib/date-picker";
-import TextArea from "antd/lib/input/TextArea";
-import {
-  DateField,
-  InputField,
-  RangeField,
-  SelectField,
-  TextAreaField,
-} from "components/shared/input";
-import { Proposal, ProposalStatusList } from "entities/proposal";
-import moment, { Moment } from "moment";
-import { Form, useForm } from "utils/hooks";
+import { Form as AntdForm, Modal, ModalProps } from "antd";
+import { InputField, TextAreaField } from "components/shared/input";
+import { Proposal } from "entities/proposal";
+import { Form } from "utils/hooks";
 
 const FormView = (form: Form<Proposal>): JSX.Element => {
   const layout = {
@@ -25,13 +10,21 @@ const FormView = (form: Form<Proposal>): JSX.Element => {
   };
   return (
     <AntdForm {...layout}>
+      <h5 style={{ marginLeft: "1cm" }}>概要</h5>
       <InputField label="タイトル" form={form} attr="title" />
+      <TextAreaField label="説明" form={form} attr="description" />
+      <h5 style={{ marginLeft: "1cm" }}>実行内容</h5>
+      <div style={{ marginLeft: "1cm", marginBottom: "0.25cm" }}>
+        複数の関数を実行したい場合は、スラッシュ区切りで入力してください。
+      </div>
       <TextAreaField label="実行コントラクト" form={form} attr="targets" />
-      <InputField type="number" label="値" form={form} attr="values" />
+      {/*
+        <InputField type="number" label="値" form={form} attr="values" />
+      */}
+      <TextAreaField label="値 (Ether)" form={form} attr="values" />
       <TextAreaField label="関数シグネチャ" form={form} attr="signatures" />
       <TextAreaField label="データ" form={form} attr="datas" />
       <TextAreaField label="データ型" form={form} attr="datatypes" />
-      <TextAreaField label="詳細" form={form} attr="description" />
       {/*
               <TextAreaField label="状態" form={form} attr="status" />
       */}

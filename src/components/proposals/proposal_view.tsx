@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { ContentBlock } from "components/shared/content_block";
 
-import { getProposalInfo, getState } from "api/fetch_sol/governance";
+import { getState } from "api/fetch_sol/governance";
 
 export const ProposalListView = (proposal: Proposal) => {
   const [isHover, setIsHover] = useState(false);
