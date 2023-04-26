@@ -106,25 +106,32 @@ export async function fetchMintedTokenNumber() {
   return message.toString();
 }
 
+const ETH_AMOUNT = "0.2"
 export async function mint(address) {
   try {
     let mintIndex;
     if (address === undefined) {
       // mint
       const { contract } = await getContract("Bonfire");
-      const options = { value: ethers.utils.parseEther("0.002") };
+      const options = { value: ethers.utils.parseEther(ETH_AMOUNT) };
       mintIndex = await contract.mint(options);
     } else {
       // mint with referral
       const { contract } = await getContract("Bonfire", sbtAbi);
-      const options = { value: ethers.utils.parseEther("0.002") };
+      const options = { value: ethers.utils.parseEther(ETH_AMOUNT) };
       mintIndex = await contract.mintWithReferral(address, options);
     }
     console.log({ mintIndex });
-    return true;
+    return {status: true, message: "SBTトークンを発行しました"};
   } catch (e) {
     console.log({ mint_error: e });
-    return false;
+    if (e?.reason == "execution reverted: Need to send more ETH.") {
+      return {status: false, message: "送金するETHが少なすぎます\n送金額を増やしてください"};
+    } else if (e?.reason == "network does not support ENS") {
+      return {status: false, message: "無効な紹介者アドレスです。\n再度アドレスを確認してください"};
+    } else {
+      return {status: false, message: "何かしらのエラーにより、sbtトークンの発行に失敗しました"};
+    }
   }
   //TODO; minted listen
 }

@@ -18,7 +18,7 @@ export async function getSigner() {
     const signer = provider.getSigner(msgSender);
     return signer;
   } else {
-    const provider = new ethers.providers.Web3Provider(window.ethereum, 31337);
+    const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
     await provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
     return signer;
@@ -65,6 +65,7 @@ export function getAbi(contractName) {
 export async function getContract(contractName, abi) {
   if (abi === undefined) abi = getAbi(contractName);
   const contractAddress = getContractAddress(contractName);
+  console.log({ コントラクトアドレス: contractAddress });
   const signer = await getSigner();
   const contract = new ethers.Contract(contractAddress, abi, signer);
   return { contractAddress, signer, contract };
