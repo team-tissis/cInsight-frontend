@@ -42,6 +42,7 @@
     "axios": "^0.21.1",
     "bootstrap": "5.0.2",
     "crc-32": "^1.2.2",
+    "date-fns": "^2.29.3",
     "dotenv": "^16.0.3",
     "encoding-japanese": "^2.0.0",
     "env-cmd": "^10.1.0",

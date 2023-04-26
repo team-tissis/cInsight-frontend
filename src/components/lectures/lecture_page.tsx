@@ -9,6 +9,9 @@ import {
   useFetchLectureApi,
   usePutLectureApi,
 } from "api/lecture";
+import {
+  useFetchLectureCustomerApi
+} from "api/lecture_customer";
 import { LectureCommetnsList } from "components/comments/comments";
 import {
   Alert,
@@ -49,6 +52,7 @@ import { CommentSearchForm } from "entities/comment";
 import { addFavos } from "api/fetch_sol/sbt";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
 import { usePostFavoriteApi, FavoriteForm } from "api/favorite";
+import { usePostLectureCustomerApi, LectureJoinInForm } from "api/lecture_customer";
 import { useFetchUserByAccountAddressApi } from "api/user";
 
 type Props = {
@@ -59,6 +63,7 @@ const LecturePage = (props: Props) => {
   const FAVO_AMOUNT = 1;
   const params = useParams<{ id: string }>();
   const lectureApi = useFetchLectureApi();
+  const lectureCustomerApi = useFetchLectureCustomerApi()
   const searchForm = useForm<CommentSearchForm>({});
   const globalState = useContext(GlobalStateContext);
   const [movieVisible, setMovieVisible] = useState(false);
@@ -67,7 +72,7 @@ const LecturePage = (props: Props) => {
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
   const [applyStatus, setApplyStatus] = useState<
     "open" | "allplyed" | "closed"
-  >("allplyed");
+  >("open");
   const [forceReloading, setForceReloading] = useState(0);
   const editLectureForm = useForm<Lecture>({});
   const putLectureApi = usePutLectureApi();
@@ -79,8 +84,12 @@ const LecturePage = (props: Props) => {
   );
   const postFavoriteApi = usePostFavoriteApi();
 
+  const postLectureCustomerApi = usePostLectureCustomerApi();
+
   useEffect(() => {
     lectureApi.execute(Number(params.id));
+    // 勉強会の参加を示したユーザーを取得
+    lectureCustomerApi.execute(params.id);
   }, [forceReloading]);
 
   useEffect(() => {
@@ -138,6 +147,16 @@ const LecturePage = (props: Props) => {
     // 再レンダリング
     setForceReloading((prev) => prev + 1);
   };
+
+  // 勉強会の参加登録
+  const handleJoinInLecture = () => {
+    // setした後にDOMの読み込みが走ってからでないと、値の更新はされない
+    const formVal : LectureJoinInForm = {lecture_id: lecture()?.id, eoa: userApiByAccountAddress.response.user.eoa}
+    // DBへのいいねの反映
+    postLectureCustomerApi.execute(formVal);
+    // 再レンダリング
+    setForceReloading((prev) => prev + 1)
+  }
 
   return (
     <PageHeader
@@ -342,14 +361,15 @@ const LecturePage = (props: Props) => {
               <Space direction="vertical">
                 <Statistic
                   title="参加人数/参加可能枠"
-                  value={lecture()?.attendeeNum}
+                  // value={lecture()?.attendeeNum}
+                  value={lectureCustomerApi.response.results.length}
                   suffix={`/ ${lecture()?.attendeeMaxNum}`}
                 />
                 {(() => {
                   switch (applyStatus) {
                     case "open":
                       return (
-                        <Button key={"lecture apply button"} type="ghost">
+                        <Button key={"lecture apply button"} type="ghost" onClick={() => handleJoinInLecture()}>
                           参加登録
                         </Button>
                       );
