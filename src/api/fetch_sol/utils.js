@@ -84,3 +84,13 @@ export function createArrayFromString(input) {
     return input.split("/").map((item) => item.trim());
   }
 }
+
+/**
+ *
+ * @param start
+ * @param end
+ * @returns [start, start+1, ..., end]
+ */
+export function createSequentialNumberArray(start, end) {
+  return [...Array(end - start + 1)].map((_, i) => i + start);
+}
