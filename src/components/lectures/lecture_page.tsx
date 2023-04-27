@@ -51,7 +51,7 @@ import { useFetchCommentsApi } from "api/comment";
 import { CommentSearchForm } from "entities/comment";
 import { addFavos } from "api/fetch_sol/sbt";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
-import { usePostFavoriteApi, FavoriteForm } from "api/favorite";
+import { usePostFavoriteApi, FavoriteForm, useFetchMyFavoApi } from "api/favorite";
 import { usePostLectureCustomerApi, LectureJoinInForm } from "api/lecture_customer";
 import { useFetchUserByAccountAddressApi } from "api/user";
 
@@ -61,6 +61,7 @@ type Props = {
 
 const LecturePage = (props: Props) => {
   const FAVO_AMOUNT = 1;
+  const monthlyDistributedFavoNum = 10;
   const params = useParams<{ id: string }>();
   const lectureApi = useFetchLectureApi();
   const lectureCustomerApi = useFetchLectureCustomerApi()
@@ -83,11 +84,13 @@ const LecturePage = (props: Props) => {
     undefined
   );
   const postFavoriteApi = usePostFavoriteApi();
+  const myFavoApi = useFetchMyFavoApi();
 
   const postLectureCustomerApi = usePostLectureCustomerApi();
 
   useEffect(() => {
     lectureApi.execute(Number(params.id));
+    myFavoApi.execute(accountAddress!);
     // 勉強会の参加を示したユーザーを取得
     lectureCustomerApi.execute(params.id);
   }, [forceReloading]);
@@ -98,6 +101,7 @@ const LecturePage = (props: Props) => {
       const _accountAddress = await getCurrentAccountAddress();
       console.log({ 自分のアカウントアドレス: _accountAddress });
       setAccountAddress(_accountAddress);
+      myFavoApi.execute(_accountAddress!);
       userApiByAccountAddress.execute(_accountAddress!);
     })();
   }, []);
@@ -347,14 +351,12 @@ const LecturePage = (props: Props) => {
                 <Button
                   key={"lecture like button"}
                   type="primary"
-                  disabled={
-                    getLectureStatus(lecture() ?? {}) !== "End" ||
-                    lecture()?.author?.eoa == accountAddress
-                  }
-                  onClick={() => handleAddFavos()}
+                  disabled={(getLectureStatus(lecture() ?? {}) !== "End") || (lecture()?.author?.eoa == accountAddress) || (myFavoApi.response.results >= 10)}
+                  onClick={() => (myFavoApi.response.results >= 10) ? null : handleAddFavos()}
                 >
                   勉強会にいいねを押す
                 </Button>
+                <div>今月はあと{monthlyDistributedFavoNum - myFavoApi.response.results}のいいねを押せます</div>
               </Space>
             </Col>
             <Col span={8}>

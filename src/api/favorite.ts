@@ -44,3 +44,53 @@ import {
     };
   }
   
+
+  export type SimpleFavorite = {
+    id: number;
+    volume: number;
+    eoa: string;
+  };
+  type FavoritesResponse = BaseResponse & {
+    results: SimpleFavorite[];
+  };
+
+  type MyFavoResponse = BaseResponse & {
+    results: number;
+  };
+  export function useFetchFavoritesApi(): ApiSet<FavoritesResponse> & {
+    execute: (accountAddress: string) => void;
+  } {
+    const api = useShowApi<FavoritesResponse>(new HttpClient(), {
+      initialResponse: { results: [] },
+    });
+
+    const execute = (accountAddress: string): void => {
+      const apiPath = `favorites/user_favorites/`;
+      api.execute(apiPath, { accountAddress });
+    };
+  
+    return {
+      ...api,
+      isSuccess: () => !api.loading && !api.isError,
+      execute: execute,
+    };
+  }
+
+  export function useFetchMyFavoApi(): ApiSet<MyFavoResponse> & {
+    execute: (accountAddress: string) => void;
+  } {
+    const api = useShowApi<MyFavoResponse>(new HttpClient(), {
+      initialResponse: { results: 0 },
+    });
+
+    const execute = (accountAddress: string): void => {
+      const apiPath = `favorites/my_favos/`;
+      api.execute(apiPath, { accountAddress });
+    };
+  
+    return {
+      ...api,
+      isSuccess: () => !api.loading && !api.isError,
+      execute: execute,
+    };
+  }
