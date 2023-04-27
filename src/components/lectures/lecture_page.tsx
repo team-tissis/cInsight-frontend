@@ -251,7 +251,7 @@ const LecturePage = (props: Props) => {
         <ContentBlock title="基本情報">
           <Descriptions column={2}>
             <Descriptions.Item label="主催者">
-              {lecture()?.author?.firstName}
+              {lecture()?.author?.name}
             </Descriptions.Item>
             <Descriptions.Item label="タグ">
               {LectureTagsView(lecture() ?? {})}
