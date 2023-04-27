@@ -163,20 +163,20 @@ export async function sendMultiFavos(address, num) {
   });
 }
 
-export async function addMultiFavos(favoritList) {
-  const { contract } = await getContract("Bonfire", sbtAbi);
-  const addressList = [];
-  const favoAmountList = [];
-  for (let i = 0; i < favoritList.length; i++) {
-    addressList.push(favoritList[i].eoa);
-    favoAmountList.push(favoritList[i].volume);
-  }
-  console.log(contract);
-  console.log({ アドレスリスト: addressList, いいねリスト: favoAmountList });
-  // 空の配列で実験
-  // await contract.addFavosFromMultipleUsers([], []);
-  await contract.addFavosFromMultipleUsers(addressList, favoAmountList);
-}
+// export async function addMultiFavos(favoritList) {
+//   const { contract } = await getContract("Bonfire", sbtAbi);
+//   const addressList = [];
+//   const favoAmountList = [];
+//   for (let i = 0; i < favoritList.length; i++) {
+//     addressList.push(favoritList[i].eoa);
+//     favoAmountList.push(favoritList[i].volume);
+//   }
+//   console.log(contract);
+//   console.log({ アドレスリスト: addressList, いいねリスト: favoAmountList });
+//   // 空の配列で実験
+//   // await contract.addFavosFromMultipleUsers([], []);
+//   await contract.addFavosFromMultipleUsers(addressList, favoAmountList);
+// }
 
 export async function _addFavos(address, num) {
   const { contract } = await getContract("Bonfire", sbtAbi);

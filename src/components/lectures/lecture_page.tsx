@@ -135,6 +135,8 @@ const LecturePage = (props: Props) => {
     const formVal : FavoriteForm = {lecture_id: lecture()?.id, eoa: userApiByAccountAddress.response.user.eoa}
     // DBへのいいねの反映
     postFavoriteApi.execute(formVal);
+    // スマコンへのいいねの反映
+    addFavos(lecture()?.author?.eoa, FAVO_AMOUNT);
     // 再レンダリング
     setForceReloading((prev) => prev + 1)
   };
@@ -232,7 +234,7 @@ const LecturePage = (props: Props) => {
         <ContentBlock title="基本情報">
           <Descriptions column={2}>
             <Descriptions.Item label="主催者">
-              {lecture()?.author?.firstName}
+              {lecture()?.author?.name}
             </Descriptions.Item>
             <Descriptions.Item label="タグ">
               {LectureTagsView(lecture() ?? {})}
@@ -328,7 +330,7 @@ const LecturePage = (props: Props) => {
                 <Button
                   key={"lecture like button"}
                   type="primary"
-                  disabled={(getLectureStatus(lecture() ?? {}) !== "End") || (lecture()?.author?.eoa == accountAddress) || (myFavoApi.response.results >= 10)}
+                  disabled={(getLectureStatus(lecture() ?? {}) !== "End") || (lecture()?.author?.eoa == accountAddress) || (monthlyDistributedFavoNum - myFavoApi.response.results <= 0)}
                   onClick={() => (myFavoApi.response.results >= 10) ? null : handleAddFavos()}
                 >
                     勉強会にいいねを押す

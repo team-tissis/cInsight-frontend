@@ -15,7 +15,6 @@ import {
   fetchConnectedAccountReferralNum,
   fetchMonthlyDistributedFavoNum,
   refer,
-  addMultiFavos,
 } from "api/fetch_sol/sbt";
 import {
   SimpleFavorite,
@@ -71,7 +70,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
   const [monthlyDistributedFavoNum, setMonthlyDistributedFavoNum] = useState();
 
   const favoritesApi = useFetchFavoritesApi();
-  const favoritePatchApi = usePatchFavoriteApi();
+  // const favoritePatchApi = usePatchFavoriteApi();
   const globalState = useContext(GlobalStateContext);
 
   const userApi = useFetchUserApi();
@@ -179,23 +178,23 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
     setFavoTotalVal(favoTotalVal);
   }, [favoritesApi]);
 
-  const sendDataToChain = async () => {
-    // チェーンにいいねを保存する
-    console.log({
-      favoritesApi_response_results: favoritesApi.response.results,
-    });
-    await addMultiFavos(favoritesApi.response.results);
-    for (let step = 0; step < favoritesApi.response.results.length; step++) {
-      try {
-        // DBのレコードを同期済みに変更する
-        favoritePatchApi.execute({id: favoritesApi.response.results[step].id})
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    // リロード
-    location.reload();
-  };
+  // const sendDataToChain = async () => {
+  //   // チェーンにいいねを保存する
+  //   console.log({
+  //     favoritesApi_response_results: favoritesApi.response.results,
+  //   });
+  //   await addMultiFavos(favoritesApi.response.results);
+  //   for (let step = 0; step < favoritesApi.response.results.length; step++) {
+  //     try {
+  //       // DBのレコードを同期済みに変更する
+  //       favoritePatchApi.execute({id: favoritesApi.response.results[step].id})
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   }
+  //   // リロード
+  //   location.reload();
+  // };
 
   return (
     <>
@@ -284,7 +283,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
                 </div>
               </StatistcsLikeBlock>
             </Col>
-            <Col span={16}>
+            {/* <Col span={16}>
               <StatistcsLikeBlock title="いいねを同期">
                 <Space direction="vertical">
                   <Space style={{ alignItems: "center" }}>
@@ -304,7 +303,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
               >
                 獲得したいいねをチェーンに反映させる
               </Button>
-            </Col>
+            </Col> */}
           </Row>
         </ContentBlock>
         {props.isMyPage && (
