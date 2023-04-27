@@ -75,22 +75,3 @@ import {
       execute: execute,
     };
   }
-
-  export function useFetchMyFavoApi(): ApiSet<MyFavoResponse> & {
-    execute: (accountAddress: string) => void;
-  } {
-    const api = useShowApi<MyFavoResponse>(new HttpClient(), {
-      initialResponse: { results: 0 },
-    });
-
-    const execute = (accountAddress: string): void => {
-      const apiPath = `favorites/my_favos/`;
-      api.execute(apiPath, { accountAddress });
-    };
-  
-    return {
-      ...api,
-      isSuccess: () => !api.loading && !api.isError,
-      execute: execute,
-    };
-  }

@@ -49,11 +49,11 @@ import { sleep } from "utils/util";
 import { EditLectureForm } from "./lecture_form";
 import { useFetchCommentsApi } from "api/comment";
 import { CommentSearchForm } from "entities/comment";
-import { addFavos } from "api/fetch_sol/sbt";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
-import { usePostFavoriteApi, FavoriteForm, useFetchMyFavoApi } from "api/favorite";
+import { usePostFavoriteApi, FavoriteForm } from "api/favorite";
 import { usePostLectureCustomerApi, LectureJoinInForm } from "api/lecture_customer";
 import { useFetchUserByAccountAddressApi } from "api/user";
+import { fetchConnectedAccountInfo, addFavos } from "api/fetch_sol/sbt";
 
 type Props = {
   history: H.History;
@@ -83,15 +83,14 @@ const LecturePage = (props: Props) => {
   const [accountAddress, setAccountAddress] = useState<string | undefined>(
     undefined
   );
+  const [favo, setFavo] = useState(0);
   const postFavoriteApi = usePostFavoriteApi();
-  const myFavoApi = useFetchMyFavoApi();
 
   const postLectureCustomerApi = usePostLectureCustomerApi();
 
   useEffect(() => {
-    lectureApi.execute(Number(params.id));
-    myFavoApi.execute(accountAddress!);
     // 勉強会の参加を示したユーザーを取得
+    lectureApi.execute(Number(params.id));
     lectureCustomerApi.execute(params.id);
   }, [forceReloading]);
 
@@ -99,12 +98,11 @@ const LecturePage = (props: Props) => {
     // ToDo1: アカウントアドレスを取得
     (async () => {
       const _accountAddress = await getCurrentAccountAddress();
-      console.log({ 自分のアカウントアドレス: _accountAddress });
+      setFavo(await fetchConnectedAccountInfo("favoOf"));
       setAccountAddress(_accountAddress);
-      myFavoApi.execute(_accountAddress!);
       userApiByAccountAddress.execute(_accountAddress!);
     })();
-  }, []);
+  }, [forceReloading]);
 
   useEffectSkipFirst(() => {
     globalState.setLoading(lectureApi.loading);
@@ -129,6 +127,10 @@ const LecturePage = (props: Props) => {
     }
   }, [deleteLectureApi.loading]);
 
+  useEffect(() => {
+    console.log("fetching favos...", favo)
+  }, [favo])
+
   const lecture = (): Lecture | undefined => {
     return lectureApi.response?.lecture;
   };
@@ -138,7 +140,7 @@ const LecturePage = (props: Props) => {
     editLectureForm.set(() => lecture() ?? {});
   };
 
-  const handleAddFavos = () => {
+  const handleAddFavos = async () =>  {
     // setした後にDOMの読み込みが走ってからでないと、値の更新はされない
     const formVal: FavoriteForm = {
       lecture_id: lecture()?.id,
@@ -147,7 +149,7 @@ const LecturePage = (props: Props) => {
     // DBへのいいねの反映
     postFavoriteApi.execute(formVal);
     // スマコンへのいいねの反映
-    addFavos(lecture()?.author?.eoa, FAVO_AMOUNT);
+    await addFavos(lecture()?.author?.eoa, FAVO_AMOUNT);
     // 再レンダリング
     setForceReloading((prev) => prev + 1);
   };
@@ -156,7 +158,7 @@ const LecturePage = (props: Props) => {
   const handleJoinInLecture = () => {
     // setした後にDOMの読み込みが走ってからでないと、値の更新はされない
     const formVal : LectureJoinInForm = {lecture_id: lecture()?.id, eoa: userApiByAccountAddress.response.user.eoa}
-    // DBへのいいねの反映
+    // DBへの反映
     postLectureCustomerApi.execute(formVal);
     // 再レンダリング
     setForceReloading((prev) => prev + 1)
@@ -351,12 +353,12 @@ const LecturePage = (props: Props) => {
                 <Button
                   key={"lecture like button"}
                   type="primary"
-                  disabled={(getLectureStatus(lecture() ?? {}) !== "End") || (lecture()?.author?.eoa == accountAddress) || (myFavoApi.response.results >= 10)}
-                  onClick={() => (myFavoApi.response.results >= 10) ? null : handleAddFavos()}
+                  disabled={(getLectureStatus(lecture() ?? {}) !== "End") || (lecture()?.author?.eoa == accountAddress) || (favo >= monthlyDistributedFavoNum)}
+                  onClick={async () => (favo >= monthlyDistributedFavoNum) ? null : await handleAddFavos()}
                 >
                   勉強会にいいねを押す
                 </Button>
-                <div>今月はあと{monthlyDistributedFavoNum - myFavoApi.response.results}のいいねを押せます</div>
+                <div>今月はあと{monthlyDistributedFavoNum - favo}のいいねを押せます</div>
               </Space>
             </Col>
             <Col span={8}>
