@@ -48,7 +48,7 @@ import { useFetchCommentsApi } from "api/comment";
 import { CommentSearchForm } from "entities/comment";
 import { addFavos } from "api/fetch_sol/sbt";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
-import { usePostFavoriteApi, FavoriteForm } from "api/favorite";
+import { usePostFavoriteApi, FavoriteForm, useFetchMyFavoApi } from "api/favorite";
 import { useFetchUserByAccountAddressApi } from "api/user";
 
 type Props = {
@@ -57,6 +57,7 @@ type Props = {
 
 const LecturePage = (props: Props) => {
   const FAVO_AMOUNT = 1;
+  const monthlyDistributedFavoNum = 10;
   const params = useParams<{ id: string }>();
   const lectureApi = useFetchLectureApi();
   const searchForm = useForm<CommentSearchForm>({});
@@ -78,6 +79,7 @@ const LecturePage = (props: Props) => {
     undefined
   );
   const postFavoriteApi = usePostFavoriteApi();
+  const myFavoApi = useFetchMyFavoApi();
 
   useEffect(() => {
     lectureApi.execute(Number(params.id));
@@ -88,8 +90,8 @@ const LecturePage = (props: Props) => {
     // ToDo1: アカウントアドレスを取得
     (async () => {
         const _accountAddress = await getCurrentAccountAddress();
-        console.log({自分のアカウントアドレス: _accountAddress})
         setAccountAddress(_accountAddress);
+        myFavoApi.execute(_accountAddress!);
         userApiByAccountAddress.execute(_accountAddress!);
     })();
   }, []);
@@ -328,10 +330,11 @@ const LecturePage = (props: Props) => {
                   key={"lecture like button"}
                   type="primary"
                   disabled={(getLectureStatus(lecture() ?? {}) !== "End") || (lecture()?.author?.eoa == accountAddress)}
-                  onClick={() => handleAddFavos()}
+                  onClick={() => (myFavoApi.response.results >= 10) ? null : handleAddFavos()}
                 >
                     勉強会にいいねを押す
                 </Button>
+                <div>今月はあと{monthlyDistributedFavoNum - myFavoApi.response.results}のいいねを押せます</div>
               </Space>
             </Col>
             <Col span={8}>

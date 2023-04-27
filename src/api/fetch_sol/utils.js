@@ -9,7 +9,8 @@ import BonfireLogic from "../../abi/BonfireLogic.sol/BonfireLogic.json";
 import SkinNft from "../../abi/SkinNft.sol/SkinNft.json";
 
 // ユーザーを切り替える際は、環境変数読み込みではなく、msgSenderの変数を直接書き換える
-const msgSender = Number(process.env.REACT_APP_MSG_SENDER);
+// const msgSender = Number(process.env.REACT_APP_MSG_SENDER);
+const msgSender = 2;
 const LOCAL_FLAG = JSON.parse(process.env.REACT_APP_LOCAL_FLAG.toLowerCase());
 
 // signerを取得
