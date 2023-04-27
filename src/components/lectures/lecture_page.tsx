@@ -9,9 +9,7 @@ import {
   useFetchLectureApi,
   usePutLectureApi,
 } from "api/lecture";
-import {
-  useFetchLectureCustomerApi
-} from "api/lecture_customer";
+import { useFetchLectureCustomerApi } from "api/lecture_customer";
 import { LectureCommetnsList } from "components/comments/comments";
 import {
   Alert,
@@ -51,8 +49,11 @@ import { useFetchCommentsApi } from "api/comment";
 import { CommentSearchForm } from "entities/comment";
 import { addFavos } from "api/fetch_sol/sbt";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
-import { usePostFavoriteApi, FavoriteForm } from "api/favorite";
-import { usePostLectureCustomerApi, LectureJoinInForm } from "api/lecture_customer";
+import { usePostFavoriteLectureApi, FavoriteLectureForm } from "api/favorite";
+import {
+  usePostLectureCustomerApi,
+  LectureJoinInForm,
+} from "api/lecture_customer";
 import { useFetchUserByAccountAddressApi } from "api/user";
 
 type Props = {
@@ -60,10 +61,9 @@ type Props = {
 };
 
 const LecturePage = (props: Props) => {
-  const FAVO_AMOUNT = 1;
   const params = useParams<{ id: string }>();
   const lectureApi = useFetchLectureApi();
-  const lectureCustomerApi = useFetchLectureCustomerApi()
+  const lectureCustomerApi = useFetchLectureCustomerApi();
   const searchForm = useForm<CommentSearchForm>({});
   const globalState = useContext(GlobalStateContext);
   const [movieVisible, setMovieVisible] = useState(false);
@@ -82,7 +82,7 @@ const LecturePage = (props: Props) => {
   const [accountAddress, setAccountAddress] = useState<string | undefined>(
     undefined
   );
-  const postFavoriteApi = usePostFavoriteApi();
+  const postFavoriteApi = usePostFavoriteLectureApi();
 
   const postLectureCustomerApi = usePostLectureCustomerApi();
 
@@ -136,14 +136,15 @@ const LecturePage = (props: Props) => {
 
   const handleAddFavos = () => {
     // setした後にDOMの読み込みが走ってからでないと、値の更新はされない
-    const formVal: FavoriteForm = {
+    const formVal: FavoriteLectureForm = {
       lecture_id: lecture()?.id,
       eoa: userApiByAccountAddress.response.user.eoa,
+      favo_num: 1,
     };
     // DBへのいいねの反映
     postFavoriteApi.execute(formVal);
     // スマコンへのいいねの反映
-    addFavos(lecture()?.author?.eoa, FAVO_AMOUNT);
+    addFavos(lecture()?.author?.eoa, 1);
     // 再レンダリング
     setForceReloading((prev) => prev + 1);
   };
@@ -151,12 +152,15 @@ const LecturePage = (props: Props) => {
   // 勉強会の参加登録
   const handleJoinInLecture = () => {
     // setした後にDOMの読み込みが走ってからでないと、値の更新はされない
-    const formVal : LectureJoinInForm = {lecture_id: lecture()?.id, eoa: userApiByAccountAddress.response.user.eoa}
+    const formVal: LectureJoinInForm = {
+      lecture_id: lecture()?.id,
+      eoa: userApiByAccountAddress.response.user.eoa,
+    };
     // DBへのいいねの反映
     postLectureCustomerApi.execute(formVal);
     // 再レンダリング
-    setForceReloading((prev) => prev + 1)
-  }
+    setForceReloading((prev) => prev + 1);
+  };
 
   return (
     <PageHeader
@@ -369,7 +373,11 @@ const LecturePage = (props: Props) => {
                   switch (applyStatus) {
                     case "open":
                       return (
-                        <Button key={"lecture apply button"} type="ghost" onClick={() => handleJoinInLecture()}>
+                        <Button
+                          key={"lecture apply button"}
+                          type="ghost"
+                          onClick={() => handleJoinInLecture()}
+                        >
                           参加登録
                         </Button>
                       );

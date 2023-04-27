@@ -11,19 +11,18 @@ import {
 } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { Comment, CommentForm } from "entities/comment";
-import React, { createElement, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useEffectSkipFirst, useForm } from "utils/hooks";
-import { useFavoCommentApi, usePostCommentApi } from "api/comment";
+import {
+  useFavoCommentApi,
+  useFetchCommentApi,
+  usePostCommentApi,
+} from "api/comment";
 import { ApiSet } from "utils/network/api_hooks";
 import { LectureResponse } from "api/lecture";
 import { useParams } from "react-router";
 import moment from "moment";
-import {
-  DislikeFilled,
-  DislikeOutlined,
-  LikeFilled,
-  LikeOutlined,
-} from "@ant-design/icons";
+import { LikeOutlined } from "@ant-design/icons";
 import { fetchAccountImageUrl, addFavos } from "api/fetch_sol/sbt";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
 import { useFetchUserApi, useFetchUserByAccountAddressApi } from "api/user";
@@ -64,29 +63,40 @@ export type LectureCommentsListProps = {
 export const LectureCommetnsList = (props: LectureCommentsListProps) => {
   const postCommentApi = usePostCommentApi();
   const favoCommentApi = useFavoCommentApi();
-  const userApi = useFetchUserByAccountAddressApi();
+  const commentApi = useFetchCommentApi();
+  const userApiByAccountAddress = useFetchUserByAccountAddressApi();
   const params = useParams<{ id: string }>();
-  const commentForm = useForm<CommentForm>({ lectureId: params.id });
+  const commentForm = useForm<CommentForm>({
+    lectureId: params.id,
+  });
   const [account, setAccount] = useState<string | undefined>(undefined);
+  const [forceReloading, setForceReloading] = useState(0);
 
   useEffect(() => {
     (async () => setAccount(await getCurrentAccountAddress()))();
   }, []);
 
+  // useEffect(() => {
+  //   commentApi.execute(Number(params.id));
+  // }, [forceReloading]);
+
   useEffectSkipFirst(() => {
     if (account !== undefined) {
-      userApi.execute(account);
+      userApiByAccountAddress.execute(account);
       // commentForm.updateObject("commenterEoa", account);
     }
   }, [account]);
 
   useEffectSkipFirst(() => {
-    if (userApi.isSuccess()) {
-      console.log(userApi.response.user);
-      commentForm.updateObject("commenterId", userApi.response.user.id);
-      // commentForm.updateObject("commenter", userApi.response.user);
+    if (userApiByAccountAddress.isSuccess()) {
+      console.log(userApiByAccountAddress.response.user);
+      commentForm.updateObject(
+        "commenterId",
+        userApiByAccountAddress.response.user.id
+      );
+      // commentForm.updateObject("commenter", userApiByAccountAddress.response.user);
     }
-  }, [userApi.loading]);
+  }, [userApiByAccountAddress.loading]);
 
   useEffectSkipFirst(() => {
     if (postCommentApi.isSuccess()) {
@@ -131,7 +141,16 @@ export const LectureCommetnsList = (props: LectureCommentsListProps) => {
                               },
                             });
                           } else {
-                            console.log(item);
+                            console.log({ item: item });
+                            console.log({
+                              eoa: props.lectureApi.response.lecture.author
+                                ?.eoa,
+                            });
+                            console.log({
+                              commenter_eoa: item.commenter?.eoa,
+                            });
+                            item.favo_newly_added = 1; // TODO:
+                            // スマコンへのいいねの反映
                             addFavos(item.commenter?.eoa, 1);
                             notification.config({
                               maxCount: 1,
@@ -142,7 +161,17 @@ export const LectureCommetnsList = (props: LectureCommentsListProps) => {
                                 backgroundColor: "#E6F7FF",
                               },
                             });
+                            // DBへのいいねの反映
                             favoCommentApi.execute(item);
+
+                            // const formVal: FavoriteCommentForm = {
+                            //   comment_id: comment()?.id,
+                            //   eoa: userApiByAccountAddress.response.user.eoa,
+                            // };
+                            // postFavoriteApi.execute(formVal);
+                            console.log({ favo: commentForm.object.favo });
+                            favoCommentApi.execute(item); // 再レンダリング
+                            setForceReloading((prev) => prev + 1);
                           }
                         }}
                       >
@@ -159,7 +188,14 @@ export const LectureCommetnsList = (props: LectureCommentsListProps) => {
                   // avatar={<Avatar style={{ backgroundColor: 'green' }}>G</Avatar>}
 
                   author={item.commenter?.name}
-                  avatar={<Link style={{ textDecoration: "auto" }} to={`/users/${item.commenter?.id}`}>{AvatorView(item.commenter?.eoa)}</Link>}
+                  avatar={
+                    <Link
+                      style={{ textDecoration: "auto" }}
+                      to={`/users/${item.commenter?.id}`}
+                    >
+                      {AvatorView(item.commenter?.eoa)}
+                    </Link>
+                  }
                   content={item.content}
                   datetime={moment(item.createdAt).fromNow()}
                 />
@@ -173,6 +209,8 @@ export const LectureCommetnsList = (props: LectureCommentsListProps) => {
         content={
           <Editor
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+              // e.target.value: フォームに入力された内容
+              console.log({ e_target_value: e.target.value });
               commentForm.updateObject("content", e.target.value);
             }}
             onSubmit={() => {

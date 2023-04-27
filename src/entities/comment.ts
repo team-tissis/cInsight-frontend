@@ -14,7 +14,7 @@ export type Comment = {
   lectureId?: string;
   favo?: number;
   createdAt?: string;
-  // favo?: number;
+  favo_newly_added?: number;
 };
 
 export type CommentSearchForm = BaseSearchForm & Comment;

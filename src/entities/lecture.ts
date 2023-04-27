@@ -17,6 +17,7 @@ export type Lecture = {
   attendeeMaxNum?: number;
   comments?: Comment[];
   favo?: number;
+  favo_newly_added?: number;
 
   moviePrice?: number;
   author?: User;
