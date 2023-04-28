@@ -44,13 +44,6 @@ export const UserPage = (props: UserPageProps): JSX.Element => {
   );
 };
 
-type UserProfileViewProps = {
-  user: User;
-  setChangeSkinForm: (value: boolean) => void;
-  userUrl?: string;
-  isMypage?: boolean;
-};
-
 type UserPageContentProps = {
   isMyPage?: boolean;
 };
