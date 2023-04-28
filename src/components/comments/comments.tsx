@@ -65,7 +65,7 @@ export type LectureCommentsListProps = {
   histroy: H.History;
 };
 
-export const LectureCommetnsList = (props: LectureCommentsListProps) => {
+export const LectureCommentsList = (props: LectureCommentsListProps) => {
   const postCommentApi = usePostCommentApi();
   const favoCommentApi = useFavoCommentApi();
   const commentApi = useFetchCommentApi();

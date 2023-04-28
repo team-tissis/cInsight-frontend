@@ -10,7 +10,7 @@ import {
   usePutLectureApi,
 } from "api/lecture";
 import { useFetchLectureCustomerApi } from "api/lecture_customer";
-import { LectureCommetnsList } from "components/comments/comments";
+import { LectureCommentsList } from "components/comments/comments";
 import {
   Alert,
   Button,
@@ -485,7 +485,7 @@ const LecturePage = (props: Props) => {
           </Row>
         </ContentBlock>
         <ContentBlock title="コメント">
-          <LectureCommetnsList
+          <LectureCommentsList
             histroy={props.history}
             lectureApi={lectureApi}
           />
