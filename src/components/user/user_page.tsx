@@ -5,7 +5,7 @@ import { UserProfileView } from "./user_view";
 import { User } from "entities/user";
 import { StatistcsLikeBlock } from "components/shared/statistics_like_block";
 import { useContext, useEffect, useState } from "react";
-import { EditUserForm, ReferralForm } from "./user_form";
+import { ChangeSkinForm, EditUserForm, ReferralForm } from "./user_form";
 import { useEffectSkipFirst, useForm } from "utils/hooks";
 import * as H from "history";
 import { useParams, withRouter } from "react-router";
@@ -44,6 +44,13 @@ export const UserPage = (props: UserPageProps): JSX.Element => {
   );
 };
 
+type UserProfileViewProps = {
+  user: User;
+  setChangeSkinForm: (value: boolean) => void;
+  userUrl?: string;
+  isMypage?: boolean;
+};
+
 type UserPageContentProps = {
   isMyPage?: boolean;
 };
@@ -53,6 +60,8 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
   const editUserForm = useForm<User>({});
   const [openReferralForm, setOpenRefaralForm] = useState(false);
   const referralForm = useForm<ReferralForm>({});
+  const [openChangeSkinForm, setOpenChangeSkinForm] = useState(false);
+  const changeSkinForm = useForm({});
 
   const [url, setUrl] = useState<string | undefined>();
   const [favo, setFavo] = useState();
@@ -175,6 +184,14 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
           refer(referralForm.object.walletAddress);
         }}
       />
+      <ChangeSkinForm
+        open={openChangeSkinForm}
+        form={changeSkinForm}
+        onCancel={() => setOpenChangeSkinForm(false)}
+        onOk={() => {
+          // refer(referralForm.object.walletAddress);
+        }}
+      />
       <Space size={20} direction="vertical" style={{ width: "100%" }}>
         <ContentBlock
           title="基本情報"
@@ -193,7 +210,9 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
             props.isMyPage
               ? userApiByAccountAddress.response.user
               : userApi.response.user,
-            url
+            setOpenChangeSkinForm,
+            url,
+            props.isMyPage
           )}
         </ContentBlock>
         <ContentBlock title="SBT INFO">

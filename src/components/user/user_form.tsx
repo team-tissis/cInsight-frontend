@@ -1,6 +1,8 @@
 import {
   DatePickerProps,
+  Card,
   Form as AntdForm,
+  List,
   Modal,
   ModalProps,
   Space,
@@ -16,6 +18,10 @@ import {
 import { User } from "entities/user";
 import moment, { Moment } from "moment";
 import { Form, useForm } from "utils/hooks";
+import { ChangeSkinView } from "./user_view";
+import { fetchSkinNftList, setIcon } from "api/fetch_sol/sbt";
+import { createSequentialNumberArray } from "api/fetch_sol/utils";
+import { useEffect, useState } from "react";
 
 const FormView = (form: Form<User>, isNew = false): JSX.Element => {
   const layout = {
@@ -79,6 +85,55 @@ export const ReferralForm = (props: ReferralFormProps) => {
         form={form}
         attr="walletAddress"
         label="ウォレット アドレス"
+      />
+    </Modal>
+  );
+};
+
+export const ChangeSkinForm = (props: ReferralFormProps) => {
+  const { form, ...rest } = props;
+  const [skinNftList, setSkinNftList] = useState<number[]>([]);
+  const [selectedTokenId, setSelectedTokenId] = useState<number | null>(null);
+
+  useEffect(() => {
+    (async () => setSkinNftList(await fetchSkinNftList()))();
+  }, []);
+
+  return (
+    <Modal
+      title="スキン一覧"
+      {...rest}
+      onOk={() => {
+        (async function () {
+          await setIcon(selectedTokenId);
+        })();
+      }}
+    >
+      {/** 
+    <Modal title="スキン一覧" {...rest} onOk={() => 1}>
+     */}
+      <List
+        itemLayout="vertical"
+        split={false}
+        size={"small"}
+        pagination={{
+          onChange: (page) => {
+            console.log(page);
+          },
+          pageSize: 3,
+        }}
+        dataSource={[0].concat(skinNftList)}
+        renderItem={(item) => (
+          <List.Item key={item}>
+            <ChangeSkinView
+              token_id={item}
+              selectedTokenId={selectedTokenId}
+              setSelectedTokenId={setSelectedTokenId}
+            />
+          </List.Item>
+        )}
+        // dataSource={createSequentialNumberArray(0, skinNftList.length - 1)}
+        // renderItem={(item) => <List.Item key={item}>{skinNftList[item]}</List.Item>}
       />
     </Modal>
   );

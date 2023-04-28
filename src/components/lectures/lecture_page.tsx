@@ -388,10 +388,12 @@ const LecturePage = (props: Props) => {
                   }
                 />
                 <div>
+                  {/**
                   この勉強会に
                   <span
                     style={{ display: "inline-block", width: "10px" }}
                   ></span>
+                   */}
                   <InputNumber
                     min={0}
                     max={remainFavo}

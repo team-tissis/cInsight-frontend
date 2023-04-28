@@ -54,7 +54,7 @@ const Editor = ({ onChange, onSubmit, submitting, value }: EditorProps) => (
         onClick={onSubmit}
         type="primary"
       >
-        Add Comment
+        コメントを追加
       </Button>
     </Form.Item>
   </>
@@ -131,48 +131,36 @@ export const LectureCommetnsList = (props: LectureCommentsListProps) => {
   };
 
   const handleAddFavos = (item: Comment, favoNum: number) => {
-    if (item.commenter?.eoa === account) {
-      notification.config({
-        maxCount: 1,
-      });
-      notification["error"]({
-        message: "自分のコメントにはいいねを押せません",
-        style: {
-          backgroundColor: "#FFF2F0",
-        },
-      });
-    } else {
-      console.log({ item: item });
-      console.log({
-        eoa: props.lectureApi.response.lecture.author?.eoa,
-      });
-      console.log({
-        commenter_eoa: item.commenter?.eoa,
-      });
-      item.favo_newly_added = count;
-      // スマコンへのいいねの反映
-      addFavos(item.commenter?.eoa, count);
-      notification.config({
-        maxCount: 1,
-      });
-      notification["info"]({
-        message: "コメントに「いいね」を押しました",
-        style: {
-          backgroundColor: "#E6F7FF",
-        },
-      });
-      // DBへのいいねの反映
-      favoCommentApi.execute(item);
+    console.log({ item: item });
+    console.log({
+      eoa: props.lectureApi.response.lecture.author?.eoa,
+    });
+    console.log({
+      commenter_eoa: item.commenter?.eoa,
+    });
+    item.favo_newly_added = count;
+    // スマコンへのいいねの反映
+    addFavos(item.commenter?.eoa, count);
+    notification.config({
+      maxCount: 1,
+    });
+    notification["info"]({
+      message: "コメントに「いいね」を押しました",
+      style: {
+        backgroundColor: "#E6F7FF",
+      },
+    });
+    // DBへのいいねの反映
+    favoCommentApi.execute(item);
 
-      // const formVal: FavoriteCommentForm = {
-      //   comment_id: comment()?.id,
-      //   eoa: userApiByAccountAddress.response.user.eoa,
-      // };
-      // postFavoriteApi.execute(formVal);
-      console.log({ favo: commentForm.object.favo });
-      favoCommentApi.execute(item); // 再レンダリング
-      setForceReloading((prev) => prev + 1);
-    }
+    // const formVal: FavoriteCommentForm = {
+    //   comment_id: comment()?.id,
+    //   eoa: userApiByAccountAddress.response.user.eoa,
+    // };
+    // postFavoriteApi.execute(formVal);
+    console.log({ favo: commentForm.object.favo });
+    favoCommentApi.execute(item); // 再レンダリング
+    setForceReloading((prev) => prev + 1);
 
     // setした後にDOMの読み込みが走ってからでないと、値の更新はされない
     console.log({ favoNum: favoNum });
@@ -206,18 +194,8 @@ export const LectureCommetnsList = (props: LectureCommentsListProps) => {
               <li>
                 <AntdComment
                   actions={[
-                    <Tooltip key="comment-basic-like" title="Like">
+                    <Tooltip key="comment-basic-like">
                       <span>
-                        {/*
-                        <LikeOutlined
-                          style={{
-                            verticalAlign: "middle",
-                          }}
-                        />
-                        */}
-                        {/* 
-                        <span className="comment-action">{item.favo ?? 0}</span>
-                        */}
                         <span
                           style={{ display: "inline-block", width: "5px" }}
                         ></span>
@@ -232,7 +210,9 @@ export const LectureCommetnsList = (props: LectureCommentsListProps) => {
                         <Button
                           key={"lecture like button"}
                           type="primary"
-                          disabled={count === 0}
+                          disabled={
+                            count === 0 || item.commenter?.eoa === account
+                          }
                           onClick={() => handleAddFavos(item, count)}
                           size="small"
                         >

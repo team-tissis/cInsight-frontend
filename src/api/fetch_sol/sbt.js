@@ -91,7 +91,9 @@ export async function fetchConnectedAccountReferralNum(account) {
     account = await getCurrentAccountAddress();
   }
   const grade = await fetchConnectedAccountInfo("gradeOf", account);
-  return referralRate[grade];
+  console.log({ referralRate: referralRate });
+  console.log({ grade: grade });
+  return referralRate[grade - 1];
 }
 
 export async function fetchMonthlyDistributedFavoNum() {
@@ -106,6 +108,23 @@ export async function fetchMintedTokenNumber() {
   const message = await contract.mintedTokenNumber();
   console.log({ mintedTokenNumber: message.toString() });
   return message.toString();
+}
+
+/**
+ * @returns number[]
+ */
+export async function fetchSkinNftList(account) {
+  const { contract } = await getContract("SkinNft");
+  if (account === undefined) {
+    account = await getCurrentAccountAddress();
+  }
+  const skinNftList = await contract.tokenIdsOf(account);
+  console.log({
+    account: account,
+    contract: contract,
+    skinNftList: skinNftList,
+  });
+  return skinNftList;
 }
 
 const ETH_AMOUNT = "0.2";
@@ -167,4 +186,13 @@ export async function addFavos(address, num) {
   } catch (e) {
     console.log(e);
   }
+}
+
+export async function setIcon(tokenId) {
+  if (tokenId === null) {
+    tokenId = 0;
+  }
+  console.log({ tokenId: tokenId });
+  const { contract } = await getContract("SkinNft");
+  contract.setIcon(tokenId);
 }
