@@ -139,8 +139,10 @@ export const LectureCommentsList = (props: LectureCommentsListProps) => {
       commenter_eoa: item.commenter?.eoa,
     });
     item.favo_newly_added = count;
+
     // スマコンへのいいねの反映
     addFavos(item.commenter?.eoa, count);
+
     notification.config({
       maxCount: 1,
     });
@@ -150,31 +152,16 @@ export const LectureCommentsList = (props: LectureCommentsListProps) => {
         backgroundColor: "#E6F7FF",
       },
     });
+
     // DBへのいいねの反映
     favoCommentApi.execute(item);
 
-    // const formVal: FavoriteCommentForm = {
-    //   comment_id: comment()?.id,
-    //   eoa: userApiByAccountAddress.response.user.eoa,
-    // };
-    // postFavoriteApi.execute(formVal);
     console.log({ favo: commentForm.object.favo });
-    favoCommentApi.execute(item); // 再レンダリング
+    favoCommentApi.execute(item);
+    // 再レンダリング
     setForceReloading((prev) => prev + 1);
 
-    // setした後にDOMの読み込みが走ってからでないと、値の更新はされない
     console.log({ favoNum: favoNum });
-    // const formVal: FavoriteLectureForm = {
-    //   lecture_id: lecture()?.id,
-    //   eoa: userApiByAccountAddress.response.user.eoa,
-    //   favo_newly_added: favoNum,
-    // };
-    // // DBへのいいねの反映
-    // postFavoriteApi.execute(formVal);
-    // // スマコンへのいいねの反映
-    // addFavos(lecture()?.author?.eoa, favoNum);
-    // // 再レンダリング
-    // setForceReloading((prev) => prev + 1);
   };
 
   return (
