@@ -17,17 +17,21 @@ import {
   Card,
   Col,
   Descriptions,
+  Dropdown,
   notification,
+  InputNumber,
   PageHeader,
   Popconfirm,
   Progress,
   Row,
+  Select,
   Skeleton,
   Space,
   Statistic,
   Tag,
   Typography,
 } from "antd";
+import { valueType } from "antd/lib/statistic/utils";
 import { LikeOutlined, LockOutlined, UnlockOutlined } from "@ant-design/icons";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import { GlobalStateContext } from "contexts/global_state_context";
@@ -47,14 +51,20 @@ import { sleep } from "utils/util";
 import { EditLectureForm } from "./lecture_form";
 import { useFetchCommentsApi } from "api/comment";
 import { CommentSearchForm } from "entities/comment";
-import { addFavos } from "api/fetch_sol/sbt";
-import { getCurrentAccountAddress } from "api/fetch_sol/utils";
+import { addFavos, fetchConnectedAccountInfo } from "api/fetch_sol/sbt";
+import {
+  getCurrentAccountAddress,
+  createSequentialNumberArray,
+} from "api/fetch_sol/utils";
 import { usePostFavoriteLectureApi, FavoriteLectureForm } from "api/favorite";
 import {
   usePostLectureCustomerApi,
   LectureJoinInForm,
 } from "api/lecture_customer";
 import { useFetchUserByAccountAddressApi } from "api/user";
+import useItems from "antd/lib/menu/hooks/useItems";
+
+const { Option } = Select;
 
 type Props = {
   history: H.History;
@@ -82,8 +92,10 @@ const LecturePage = (props: Props) => {
   const [accountAddress, setAccountAddress] = useState<string | undefined>(
     undefined
   );
-  const postFavoriteApi = usePostFavoriteLectureApi();
+  const [count, setCount] = useState<number>(0);
+  const [remainFavo, setRemainFavo] = useState<number>(0);
 
+  const postFavoriteApi = usePostFavoriteLectureApi();
   const postLectureCustomerApi = usePostLectureCustomerApi();
 
   useEffect(() => {
@@ -98,6 +110,7 @@ const LecturePage = (props: Props) => {
       const _accountAddress = await getCurrentAccountAddress();
       console.log({ 自分のアカウントアドレス: _accountAddress });
       setAccountAddress(_accountAddress);
+      setRemainFavo(Number(await fetchConnectedAccountInfo("remainFavoNumOf")));
       userApiByAccountAddress.execute(_accountAddress!);
     })();
   }, []);
@@ -134,17 +147,18 @@ const LecturePage = (props: Props) => {
     editLectureForm.set(() => lecture() ?? {});
   };
 
-  const handleAddFavos = () => {
+  const handleAddFavos = (favoNum: number) => {
     // setした後にDOMの読み込みが走ってからでないと、値の更新はされない
+    console.log({ favoNum: favoNum });
     const formVal: FavoriteLectureForm = {
       lecture_id: lecture()?.id,
       eoa: userApiByAccountAddress.response.user.eoa,
-      favo_num: 1,
+      favo_newly_added: favoNum,
     };
     // DBへのいいねの反映
     postFavoriteApi.execute(formVal);
     // スマコンへのいいねの反映
-    addFavos(lecture()?.author?.eoa, 1);
+    addFavos(lecture()?.author?.eoa, favoNum);
     // 再レンダリング
     setForceReloading((prev) => prev + 1);
   };
@@ -160,6 +174,31 @@ const LecturePage = (props: Props) => {
     postLectureCustomerApi.execute(formVal);
     // 再レンダリング
     setForceReloading((prev) => prev + 1);
+  };
+
+  // const handleStep = (
+  //   _: number,
+  //   info: { offset: valueType; type: "up" | "down" }
+  // ) => {
+  //   console.log({ remainFavo: remainFavo });
+  //   console.log({ count: count });
+  //   console.log({ info_type: info.type });
+  //   if (info.type === "up") {
+  //     setCount((prev) => prev + 1);
+  //   } else {
+  //     setCount((prev) => prev - 1);
+  //   }
+  //   // この時点では更新されないが、問題なし。
+  //   // console.log({ count: count });
+  // };
+
+  const handleChange = (value: number | null) => {
+    console.log({ value: value });
+    if (value == null) {
+      setCount(0);
+    } else {
+      setCount(value);
+    }
   };
 
   return (
@@ -348,17 +387,36 @@ const LecturePage = (props: Props) => {
                     />
                   }
                 />
-                <Button
-                  key={"lecture like button"}
-                  type="primary"
-                  disabled={
-                    getLectureStatus(lecture() ?? {}) !== "End" ||
-                    lecture()?.author?.eoa == accountAddress
-                  }
-                  onClick={() => handleAddFavos()}
-                >
-                  勉強会にいいねを押す
-                </Button>
+                <div>
+                  この勉強会に
+                  <span
+                    style={{ display: "inline-block", width: "10px" }}
+                  ></span>
+                  <InputNumber
+                    min={0}
+                    max={remainFavo}
+                    defaultValue={0}
+                    onChange={handleChange}
+                    style={{ width: "50px" }}
+                  />
+                  <Button
+                    key={"lecture like button"}
+                    type="primary"
+                    disabled={
+                      getLectureStatus(lecture() ?? {}) !== "End" ||
+                      lecture()?.author?.eoa == accountAddress ||
+                      count === 0
+                    }
+                    onClick={() => handleAddFavos(count)}
+                  >
+                    <LikeOutlined
+                      style={{
+                        verticalAlign: "middle",
+                      }}
+                    />
+                    を送る
+                  </Button>
+                </div>
               </Space>
             </Col>
             <Col span={8}>

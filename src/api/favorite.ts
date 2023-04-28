@@ -16,7 +16,7 @@ import { HttpClient } from "../utils/network/axios";
 export type FavoriteLecture = {
   lecture_id?: string;
   eoa?: string;
-  favo_num?: number;
+  favo_newly_added?: number;
 };
 export type FavoriteLectureForm = FavoriteLecture;
 

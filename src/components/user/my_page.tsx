@@ -30,6 +30,7 @@ import { withRouter } from "react-router";
 import { mint, fetchConnectedAccountInfo } from "api/fetch_sol/sbt";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
 import { usePostUserApi } from "api/user";
+import { has } from "lodash";
 
 type Props = {
   history: H.History;
@@ -48,6 +49,8 @@ export const MyPage = (props: Props) => {
   // useEffect(() => {
   //   checkHasSbtApi.execute();
   // }, []);
+
+  console.log({ hasSbt: hasSbt });
 
   return (
     <PageHeader

@@ -4,6 +4,7 @@ import {
   Button,
   Comment as AntdComment,
   Form,
+  InputNumber,
   List,
   message,
   notification,
@@ -23,7 +24,11 @@ import { LectureResponse } from "api/lecture";
 import { useParams } from "react-router";
 import moment from "moment";
 import { LikeOutlined } from "@ant-design/icons";
-import { fetchAccountImageUrl, addFavos } from "api/fetch_sol/sbt";
+import {
+  fetchAccountImageUrl,
+  fetchConnectedAccountInfo,
+  addFavos,
+} from "api/fetch_sol/sbt";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
 import { useFetchUserApi, useFetchUserByAccountAddressApi } from "api/user";
 import { AvatorView } from "components/user/user_view";
@@ -72,8 +77,14 @@ export const LectureCommetnsList = (props: LectureCommentsListProps) => {
   const [account, setAccount] = useState<string | undefined>(undefined);
   const [forceReloading, setForceReloading] = useState(0);
 
+  const [count, setCount] = useState<number>(0);
+  const [remainFavo, setRemainFavo] = useState<number>(0);
+
   useEffect(() => {
-    (async () => setAccount(await getCurrentAccountAddress()))();
+    (async () => {
+      setAccount(await getCurrentAccountAddress());
+      setRemainFavo(Number(await fetchConnectedAccountInfo("remainFavoNumOf")));
+    })();
   }, []);
 
   // useEffect(() => {
@@ -110,6 +121,74 @@ export const LectureCommetnsList = (props: LectureCommentsListProps) => {
     }
   }, [favoCommentApi.loading]);
 
+  const handleChange = (value: number | null) => {
+    console.log({ value: value });
+    if (value == null) {
+      setCount(0);
+    } else {
+      setCount(value);
+    }
+  };
+
+  const handleAddFavos = (item: Comment, favoNum: number) => {
+    if (item.commenter?.eoa === account) {
+      notification.config({
+        maxCount: 1,
+      });
+      notification["error"]({
+        message: "自分のコメントにはいいねを押せません",
+        style: {
+          backgroundColor: "#FFF2F0",
+        },
+      });
+    } else {
+      console.log({ item: item });
+      console.log({
+        eoa: props.lectureApi.response.lecture.author?.eoa,
+      });
+      console.log({
+        commenter_eoa: item.commenter?.eoa,
+      });
+      item.favo_newly_added = count;
+      // スマコンへのいいねの反映
+      addFavos(item.commenter?.eoa, count);
+      notification.config({
+        maxCount: 1,
+      });
+      notification["info"]({
+        message: "コメントに「いいね」を押しました",
+        style: {
+          backgroundColor: "#E6F7FF",
+        },
+      });
+      // DBへのいいねの反映
+      favoCommentApi.execute(item);
+
+      // const formVal: FavoriteCommentForm = {
+      //   comment_id: comment()?.id,
+      //   eoa: userApiByAccountAddress.response.user.eoa,
+      // };
+      // postFavoriteApi.execute(formVal);
+      console.log({ favo: commentForm.object.favo });
+      favoCommentApi.execute(item); // 再レンダリング
+      setForceReloading((prev) => prev + 1);
+    }
+
+    // setした後にDOMの読み込みが走ってからでないと、値の更新はされない
+    console.log({ favoNum: favoNum });
+    // const formVal: FavoriteLectureForm = {
+    //   lecture_id: lecture()?.id,
+    //   eoa: userApiByAccountAddress.response.user.eoa,
+    //   favo_newly_added: favoNum,
+    // };
+    // // DBへのいいねの反映
+    // postFavoriteApi.execute(formVal);
+    // // スマコンへのいいねの反映
+    // addFavos(lecture()?.author?.eoa, favoNum);
+    // // 再レンダリング
+    // setForceReloading((prev) => prev + 1);
+  };
+
   return (
     <>
       {!!(props.lectureApi.response.lecture.comments ?? []).length && (
@@ -128,59 +207,42 @@ export const LectureCommetnsList = (props: LectureCommentsListProps) => {
                 <AntdComment
                   actions={[
                     <Tooltip key="comment-basic-like" title="Like">
-                      <span
-                        onClick={() => {
-                          if (item.commenter?.eoa === account) {
-                            notification.config({
-                              maxCount: 1,
-                            });
-                            notification["error"]({
-                              message: "自分のコメントにはいいねを押せません",
-                              style: {
-                                backgroundColor: "#FFF2F0",
-                              },
-                            });
-                          } else {
-                            console.log({ item: item });
-                            console.log({
-                              eoa: props.lectureApi.response.lecture.author
-                                ?.eoa,
-                            });
-                            console.log({
-                              commenter_eoa: item.commenter?.eoa,
-                            });
-                            item.favo_newly_added = 1; // TODO:
-                            // スマコンへのいいねの反映
-                            addFavos(item.commenter?.eoa, 1);
-                            notification.config({
-                              maxCount: 1,
-                            });
-                            notification["info"]({
-                              message: "コメントに「いいね」を押しました",
-                              style: {
-                                backgroundColor: "#E6F7FF",
-                              },
-                            });
-                            // DBへのいいねの反映
-                            favoCommentApi.execute(item);
-
-                            // const formVal: FavoriteCommentForm = {
-                            //   comment_id: comment()?.id,
-                            //   eoa: userApiByAccountAddress.response.user.eoa,
-                            // };
-                            // postFavoriteApi.execute(formVal);
-                            console.log({ favo: commentForm.object.favo });
-                            favoCommentApi.execute(item); // 再レンダリング
-                            setForceReloading((prev) => prev + 1);
-                          }
-                        }}
-                      >
+                      <span>
+                        {/*
                         <LikeOutlined
                           style={{
                             verticalAlign: "middle",
                           }}
                         />
+                        */}
+                        {/* 
                         <span className="comment-action">{item.favo ?? 0}</span>
+                        */}
+                        <span
+                          style={{ display: "inline-block", width: "5px" }}
+                        ></span>
+                        <InputNumber
+                          min={0}
+                          max={remainFavo}
+                          defaultValue={0}
+                          onChange={handleChange}
+                          style={{ width: "50px" }}
+                          size="small"
+                        />
+                        <Button
+                          key={"lecture like button"}
+                          type="primary"
+                          disabled={count === 0}
+                          onClick={() => handleAddFavos(item, count)}
+                          size="small"
+                        >
+                          <LikeOutlined
+                            style={{
+                              verticalAlign: "middle",
+                            }}
+                          />
+                          を送る
+                        </Button>
                       </span>
                     </Tooltip>,
                   ]}

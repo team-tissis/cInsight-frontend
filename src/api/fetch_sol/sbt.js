@@ -48,6 +48,8 @@ async function fetchFunction(contract, address, method) {
     response = contract.referralOf(address);
   } else if (method == "tokenIdOf") {
     response = contract.tokenIdOf(address);
+  } else if (method == "remainFavoNumOf") {
+    response = contract.remainFavoNumOf(address);
   } else if (method == "tokenURI") {
     response = contract.tokenURI(contract.tokenIdOf(address));
   } else {
@@ -106,7 +108,7 @@ export async function fetchMintedTokenNumber() {
   return message.toString();
 }
 
-const ETH_AMOUNT = "0.2"
+const ETH_AMOUNT = "0.2";
 export async function mint(address) {
   try {
     let mintIndex;
@@ -122,15 +124,24 @@ export async function mint(address) {
       mintIndex = await contract.mintWithReferral(address, options);
     }
     console.log({ mintIndex });
-    return {status: true, message: "SBTトークンを発行しました"};
+    return { status: true, message: "SBTトークンを発行しました" };
   } catch (e) {
     console.log({ mint_error: e });
     if (e?.reason == "execution reverted: Need to send more ETH.") {
-      return {status: false, message: "送金するETHが少なすぎます\n送金額を増やしてください"};
+      return {
+        status: false,
+        message: "送金するETHが少なすぎます\n送金額を増やしてください",
+      };
     } else if (e?.reason == "network does not support ENS") {
-      return {status: false, message: "無効な紹介者アドレスです。\n再度アドレスを確認してください"};
+      return {
+        status: false,
+        message: "無効な紹介者アドレスです。\n再度アドレスを確認してください",
+      };
     } else {
-      return {status: false, message: "何かしらのエラーにより、sbtトークンの発行に失敗しました"};
+      return {
+        status: false,
+        message: "何かしらのエラーにより、sbtトークンの発行に失敗しました",
+      };
     }
   }
   //TODO; minted listen

@@ -1,15 +1,6 @@
-import {
-  Button,
-  Col,
-  PageHeader,
-  Row,
-  Space,
-  Statistic,
-} from "antd";
+import { Button, Col, PageHeader, Row, Space, Statistic } from "antd";
 import { ContentBlock } from "components/shared/content_block";
-import {
-  LikeOutlined,
-} from "@ant-design/icons";
+import { LikeOutlined } from "@ant-design/icons";
 import { UserProfileView } from "./user_view";
 import { User } from "entities/user";
 import { StatistcsLikeBlock } from "components/shared/statistics_like_block";
@@ -101,7 +92,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
       // マイページのとき
       userApiByAccountAddress.execute(accountAddress);
       (async function () {
-        setUrl(await fetchAccountImageUrl())
+        setUrl(await fetchAccountImageUrl());
         setFavo(await fetchConnectedAccountInfo("favoOf"));
         setGrade(await fetchConnectedAccountInfo("gradeOf"));
         setMaki(await fetchConnectedAccountInfo("makiOf"));
@@ -126,7 +117,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
     if (userApi.isSuccess() && !props.isMyPage) {
       // この部分が実行されるのは、マイページではないときのみ
       (async function () {
-        setUrl(await fetchAccountImageUrl(userApi.response.user.eoa))
+        setUrl(await fetchAccountImageUrl(userApi.response.user.eoa));
         setFavo(
           await fetchConnectedAccountInfo("favoOf", userApi.response.user.eoa)
         );
