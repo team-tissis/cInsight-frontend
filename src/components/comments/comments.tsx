@@ -138,30 +138,34 @@ export const LectureCommentsList = (props: LectureCommentsListProps) => {
     console.log({
       commenter_eoa: item.commenter?.eoa,
     });
-    item.favo_newly_added = count;
-
-    // スマコンへのいいねの反映
-    addFavos(item.commenter?.eoa, count);
-
-    notification.config({
-      maxCount: 1,
-    });
-    notification["info"]({
-      message: "コメントに「いいね」を押しました",
-      style: {
-        backgroundColor: "#E6F7FF",
-      },
-    });
-
-    // DBへのいいねの反映
-    favoCommentApi.execute(item);
-
-    console.log({ favo: commentForm.object.favo });
-    favoCommentApi.execute(item);
-    // 再レンダリング
-    setForceReloading((prev) => prev + 1);
-
     console.log({ favoNum: favoNum });
+    try {
+      item.favo_newly_added = count;
+
+      // スマコンへのいいねの反映
+      addFavos(item.commenter?.eoa, count);
+      // DBへのいいねの反映
+      favoCommentApi.execute(item);
+
+      notification.config({
+        maxCount: 1,
+      });
+      notification["info"]({
+        message: "コメントに「いいね」を押しました",
+        style: {
+          backgroundColor: "#E6F7FF",
+        },
+      });
+      // 再レンダリング
+      setForceReloading((prev) => prev + 1);
+    } catch {
+      notification.config({
+        maxCount: 1,
+      });
+      notification["error"]({
+        message: "コメントへの「いいね」に失敗しました",
+      });
+    }
   };
 
   return (

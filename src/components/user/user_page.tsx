@@ -181,9 +181,8 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
         open={openChangeSkinForm}
         form={changeSkinForm}
         onCancel={() => setOpenChangeSkinForm(false)}
-        onOk={() => {
-          // refer(referralForm.object.walletAddress);
-        }}
+        // onOk={() => {
+        // }}
       />
       <Space size={20} direction="vertical" style={{ width: "100%" }}>
         <ContentBlock
