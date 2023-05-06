@@ -53,10 +53,7 @@ import { EditLectureForm } from "./lecture_form";
 import { useFetchCommentsApi } from "api/comment";
 import { CommentSearchForm } from "entities/comment";
 import { addFavos, fetchConnectedAccountInfo } from "api/fetch_sol/sbt";
-import {
-  getCurrentAccountAddress,
-  createSequentialNumberArray,
-} from "api/fetch_sol/utils";
+import { getCurrentAccountAddress } from "api/fetch_sol/utils";
 import {
   usePostLectureCustomerApi,
   LectureJoinInForm,
@@ -100,13 +97,12 @@ const LecturePage = (props: Props) => {
   const [count, setCount] = useState<number>(0);
   const [remainFavo, setRemainFavo] = useState<number>(0);
 
-  // const postFavoriteApi = usePostFavoriteLectureApi();
   const favoLectureApi = useFavoLectureApi();
   const postLectureCustomerApi = usePostLectureCustomerApi();
 
   useEffect(() => {
-    lectureApi.execute(Number(params.id));
     // 勉強会の参加を示したユーザーを取得
+    lectureApi.execute(Number(params.id));
     lectureCustomerApi.execute(params.id);
   }, [forceReloading]);
 
@@ -114,12 +110,11 @@ const LecturePage = (props: Props) => {
     // ToDo1: アカウントアドレスを取得
     (async () => {
       const _accountAddress = await getCurrentAccountAddress();
-      console.log({ 自分のアカウントアドレス: _accountAddress });
       setAccountAddress(_accountAddress);
       setRemainFavo(Number(await fetchConnectedAccountInfo("remainFavoNumOf")));
       userApiByAccountAddress.execute(_accountAddress!);
     })();
-  }, []);
+  }, [forceReloading]);
 
   useEffectSkipFirst(() => {
     globalState.setLoading(lectureApi.loading);
@@ -144,6 +139,10 @@ const LecturePage = (props: Props) => {
     }
   }, [deleteLectureApi.loading]);
 
+  useEffect(() => {
+    console.log("fetching favos...", remainFavo);
+  }, [remainFavo]);
+
   const lecture = (): Lecture | undefined => {
     return lectureApi.response?.lecture;
   };
@@ -153,7 +152,7 @@ const LecturePage = (props: Props) => {
     editLectureForm.set(() => lecture() ?? {});
   };
 
-  const handleAddFavos = (favoNum: number) => {
+  const handleAddFavos = async (favoNum: number) => {
     // setした後にDOMの読み込みが走ってからでないと、値の更新はされない
     console.log({ favoNum: favoNum });
     const formVal: FavoriteLectureForm = {
@@ -161,11 +160,9 @@ const LecturePage = (props: Props) => {
       // eoa: userApiByAccountAddress.response.user.eoa,
       favo_newly_added: favoNum,
     };
-    // DBへのいいねの反映
-    // postFavoriteApi.execute(formVal);
     favoLectureApi.execute(formVal);
     // スマコンへのいいねの反映
-    addFavos(lecture()?.author?.eoa, favoNum);
+    await addFavos(lecture()?.author?.eoa, favoNum);
     // 再レンダリング
     setForceReloading((prev) => prev + 1);
   };
@@ -177,7 +174,7 @@ const LecturePage = (props: Props) => {
       lecture_id: lecture()?.id,
       eoa: userApiByAccountAddress.response.user.eoa,
     };
-    // DBへのいいねの反映
+    // DBへの反映
     postLectureCustomerApi.execute(formVal);
     // 再レンダリング
     setForceReloading((prev) => prev + 1);
@@ -416,7 +413,7 @@ const LecturePage = (props: Props) => {
                       lecture()?.author?.eoa == accountAddress ||
                       count === 0
                     }
-                    onClick={() => handleAddFavos(count)}
+                    onClick={async () => handleAddFavos(count)}
                   >
                     <LikeOutlined
                       style={{
@@ -425,6 +422,9 @@ const LecturePage = (props: Props) => {
                     />
                     を送る
                   </Button>
+                  {/**
+                  <div>今月はあと{remainFavo}回いいねを押せます</div>
+                   */}
                 </div>
               </Space>
             </Col>
@@ -479,7 +479,6 @@ const LecturePage = (props: Props) => {
                       );
                   }
                 })()}
-                ,
               </Space>
             </Col>
             <Col span={8}>
