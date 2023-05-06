@@ -7,6 +7,7 @@ import { useContext, useEffect, useState } from "react";
 import {
   useDeleteLectureApi,
   useFetchLectureApi,
+  useFavoLectureApi,
   usePutLectureApi,
 } from "api/lecture";
 import { useFetchLectureCustomerApi } from "api/lecture_customer";
@@ -56,18 +57,22 @@ import {
   getCurrentAccountAddress,
   createSequentialNumberArray,
 } from "api/fetch_sol/utils";
-import { usePostFavoriteLectureApi, FavoriteLectureForm } from "api/favorite";
 import {
   usePostLectureCustomerApi,
   LectureJoinInForm,
 } from "api/lecture_customer";
 import { useFetchUserByAccountAddressApi } from "api/user";
-import useItems from "antd/lib/menu/hooks/useItems";
 
 const { Option } = Select;
 
 type Props = {
   history: H.History;
+};
+
+type FavoriteLectureForm = {
+  lecture_id?: string;
+  eoa?: string;
+  favo_newly_added?: number;
 };
 
 const LecturePage = (props: Props) => {
@@ -95,7 +100,8 @@ const LecturePage = (props: Props) => {
   const [count, setCount] = useState<number>(0);
   const [remainFavo, setRemainFavo] = useState<number>(0);
 
-  const postFavoriteApi = usePostFavoriteLectureApi();
+  // const postFavoriteApi = usePostFavoriteLectureApi();
+  const favoLectureApi = useFavoLectureApi();
   const postLectureCustomerApi = usePostLectureCustomerApi();
 
   useEffect(() => {
@@ -152,11 +158,12 @@ const LecturePage = (props: Props) => {
     console.log({ favoNum: favoNum });
     const formVal: FavoriteLectureForm = {
       lecture_id: lecture()?.id,
-      eoa: userApiByAccountAddress.response.user.eoa,
+      // eoa: userApiByAccountAddress.response.user.eoa,
       favo_newly_added: favoNum,
     };
     // DBへのいいねの反映
-    postFavoriteApi.execute(formVal);
+    // postFavoriteApi.execute(formVal);
+    favoLectureApi.execute(formVal);
     // スマコンへのいいねの反映
     addFavos(lecture()?.author?.eoa, favoNum);
     // 再レンダリング
