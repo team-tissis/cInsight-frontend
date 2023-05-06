@@ -81,33 +81,37 @@ export const CommentListView = (props: CommentListViewProps): JSX.Element => {
       actions={[
         <Tooltip key="comment-basic-like">
           <span>
-            <span style={{ display: "inline-block", width: "5px" }}></span>
-            <InputNumber
-              min={0}
-              max={props.remainFavo}
-              defaultValue={0}
-              onChange={handleChange}
-              style={{ width: "50px" }}
-              size="small"
-            />
-            <Button
-              key={"lecture like button"}
-              type="primary"
-              disabled={
-                count === 0 ||
-                props.item.commenter?.eoa === props.account ||
-                props.hasSbt === 0
-              }
-              onClick={() => handleAddFavos(props.item, count)}
-              size="small"
-            >
+            <div>
               <LikeOutlined
                 style={{
                   verticalAlign: "middle",
                 }}
               />
-              を送る
-            </Button>
+              <span style={{ display: "inline-block", width: "5px" }}></span>
+              {props.item.favo}
+              <span style={{ display: "inline-block", width: "20px" }}></span>
+              <InputNumber
+                min={0}
+                max={props.remainFavo}
+                defaultValue={0}
+                onChange={handleChange}
+                style={{ width: "50px" }}
+                size="small"
+              />
+              <Button
+                key={"lecture like button"}
+                type="primary"
+                disabled={
+                  count === 0 ||
+                  props.item.commenter?.eoa === props.account ||
+                  props.hasSbt === 0
+                }
+                onClick={() => handleAddFavos(props.item, count)}
+                size="small"
+              >
+                いいねを送る
+              </Button>
+            </div>
           </span>
         </Tooltip>,
       ]}

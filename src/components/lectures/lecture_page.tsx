@@ -391,6 +391,7 @@ const LecturePage = (props: Props) => {
                     <LikeOutlined
                       style={{
                         verticalAlign: "middle",
+                        marginRight: "5px",
                       }}
                     />
                   }
@@ -420,12 +421,14 @@ const LecturePage = (props: Props) => {
                     }
                     onClick={async () => handleAddFavos(count)}
                   >
+                    {/**
                     <LikeOutlined
                       style={{
                         verticalAlign: "middle",
                       }}
                     />
-                    を送る
+                   */}
+                    いいねを送る
                   </Button>
                   {/**
                   <div>今月はあと{remainFavo}回いいねを押せます</div>
@@ -436,7 +439,7 @@ const LecturePage = (props: Props) => {
             <Col span={8}>
               <Space direction="vertical">
                 <Statistic
-                  title="参加人数/参加可能枠"
+                  title="参加人数 / 参加可能枠"
                   // value={lecture()?.attendeeNum}
                   value={lectureCustomerApi.response.results.length}
                   suffix={`/ ${lecture()?.attendeeMaxNum}`}
