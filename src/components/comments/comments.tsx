@@ -33,7 +33,7 @@ import { getCurrentAccountAddress } from "api/fetch_sol/utils";
 import { useFetchUserApi, useFetchUserByAccountAddressApi } from "api/user";
 import { AvatorView } from "components/user/user_view";
 import * as H from "history";
-import { Link } from "react-router-dom";
+import { CommentListView } from "components/comments/comment_view";
 
 export type EditorProps = {
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -77,16 +77,14 @@ export type LectureCommentsListProps = {
 export const LectureCommentsList = (props: LectureCommentsListProps) => {
   const postCommentApi = usePostCommentApi();
   const favoCommentApi = useFavoCommentApi();
-  const commentApi = useFetchCommentApi();
+  // const commentApi = useFetchCommentApi();
   const userApiByAccountAddress = useFetchUserByAccountAddressApi();
   const params = useParams<{ id: string }>();
   const commentForm = useForm<CommentForm>({
     lectureId: params.id,
   });
   const [account, setAccount] = useState<string | undefined>(undefined);
-  const [forceReloading, setForceReloading] = useState(0);
 
-  const [count, setCount] = useState<number>(0);
   const [remainFavo, setRemainFavo] = useState<number>(0);
 
   useEffect(() => {
@@ -130,53 +128,6 @@ export const LectureCommentsList = (props: LectureCommentsListProps) => {
     }
   }, [favoCommentApi.loading]);
 
-  const handleChange = (value: number | null) => {
-    console.log({ value: value });
-    if (value == null) {
-      setCount(0);
-    } else {
-      setCount(value);
-    }
-  };
-
-  const handleAddFavos = (item: Comment, favoNum: number) => {
-    console.log({ item: item });
-    console.log({
-      eoa: props.lectureApi.response.lecture.author?.eoa,
-    });
-    console.log({
-      commenter_eoa: item.commenter?.eoa,
-    });
-    console.log({ favoNum: favoNum });
-    try {
-      item.favo_newly_added = count;
-
-      // スマコンへのいいねの反映
-      addFavos(item.commenter?.eoa, count);
-      // DBへのいいねの反映
-      favoCommentApi.execute(item);
-
-      notification.config({
-        maxCount: 1,
-      });
-      notification["info"]({
-        message: "コメントに「いいね」を押しました",
-        style: {
-          backgroundColor: "#E6F7FF",
-        },
-      });
-      // 再レンダリング
-      setForceReloading((prev) => prev + 1);
-    } catch {
-      notification.config({
-        maxCount: 1,
-      });
-      notification["error"]({
-        message: "コメントへの「いいね」に失敗しました",
-      });
-    }
-  };
-
   return (
     <>
       {!!(props.lectureApi.response.lecture.comments ?? []).length && (
@@ -192,56 +143,13 @@ export const LectureCommentsList = (props: LectureCommentsListProps) => {
                 : undefined;
             return (
               <li>
-                <AntdComment
-                  actions={[
-                    <Tooltip key="comment-basic-like">
-                      <span>
-                        <span
-                          style={{ display: "inline-block", width: "5px" }}
-                        ></span>
-                        <InputNumber
-                          min={0}
-                          max={remainFavo}
-                          defaultValue={0}
-                          onChange={handleChange}
-                          style={{ width: "50px" }}
-                          size="small"
-                        />
-                        <Button
-                          key={"lecture like button"}
-                          type="primary"
-                          disabled={
-                            count === 0 ||
-                            item.commenter?.eoa === account ||
-                            props.hasSbt === 0
-                          }
-                          onClick={() => handleAddFavos(item, count)}
-                          size="small"
-                        >
-                          <LikeOutlined
-                            style={{
-                              verticalAlign: "middle",
-                            }}
-                          />
-                          を送る
-                        </Button>
-                      </span>
-                    </Tooltip>,
-                  ]}
-                  // author={<a>Gourav Hammad</a>}
-                  // avatar={<Avatar style={{ backgroundColor: 'green' }}>G</Avatar>}
-
-                  author={item.commenter?.name}
-                  avatar={
-                    <Link
-                      style={{ textDecoration: "auto" }}
-                      to={`/users/${item.commenter?.id}`}
-                    >
-                      {AvatorView(item.commenter?.eoa)}
-                    </Link>
-                  }
-                  content={item.content}
-                  datetime={moment(item.createdAt).fromNow()}
+                <CommentListView
+                  item={item}
+                  hasSbt={props.hasSbt}
+                  account={account}
+                  remainFavo={remainFavo}
+                  lectureApi={props.lectureApi}
+                  favoCommentApi={favoCommentApi}
                 />
               </li>
             );
