@@ -237,7 +237,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
               </div> */}
             </Col>
             <Col span={8}>
-              <StatistcsLikeBlock title="今月のいいね付与数">
+              <StatistcsLikeBlock title="今月のいいね消費数">
                 <Space direction="vertical">
                   <Space style={{ alignItems: "center" }}>
                     <LikeOutlined
