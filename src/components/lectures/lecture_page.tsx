@@ -85,6 +85,7 @@ const LecturePage = (props: Props) => {
   const [applyStatus, setApplyStatus] = useState<
     "open" | "allplyed" | "closed"
   >("open");
+  const [hasSbt, setHasSbt] = useState(0);
   const [forceReloading, setForceReloading] = useState(0);
   const editLectureForm = useForm<Lecture>({});
   const putLectureApi = usePutLectureApi();
@@ -112,6 +113,7 @@ const LecturePage = (props: Props) => {
       const _accountAddress = await getCurrentAccountAddress();
       setAccountAddress(_accountAddress);
       setRemainFavo(Number(await fetchConnectedAccountInfo("remainFavoNumOf")));
+      setHasSbt(Number(await fetchConnectedAccountInfo("gradeOf")));
       userApiByAccountAddress.execute(_accountAddress!);
     })();
   }, [forceReloading]);
@@ -204,6 +206,8 @@ const LecturePage = (props: Props) => {
       setCount(value);
     }
   };
+
+  console.log({ hasSbt: hasSbt });
 
   return (
     <PageHeader
@@ -411,7 +415,8 @@ const LecturePage = (props: Props) => {
                     disabled={
                       getLectureStatus(lecture() ?? {}) !== "End" ||
                       lecture()?.author?.eoa == accountAddress ||
-                      count === 0
+                      count === 0 ||
+                      hasSbt === 0
                     }
                     onClick={async () => handleAddFavos(count)}
                   >
@@ -494,6 +499,7 @@ const LecturePage = (props: Props) => {
           <LectureCommentsList
             histroy={props.history}
             lectureApi={lectureApi}
+            hasSbt={hasSbt}
           />
         </ContentBlock>
       </Space>

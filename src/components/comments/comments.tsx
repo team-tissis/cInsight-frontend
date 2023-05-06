@@ -40,9 +40,16 @@ export type EditorProps = {
   onSubmit: () => void;
   submitting: boolean;
   value: string;
+  hasSbt: number;
 };
 
-const Editor = ({ onChange, onSubmit, submitting, value }: EditorProps) => (
+const Editor = ({
+  onChange,
+  onSubmit,
+  submitting,
+  value,
+  hasSbt,
+}: EditorProps) => (
   <>
     <Form.Item>
       <TextArea rows={4} onChange={onChange} value={value} />
@@ -53,6 +60,7 @@ const Editor = ({ onChange, onSubmit, submitting, value }: EditorProps) => (
         loading={submitting}
         onClick={onSubmit}
         type="primary"
+        disabled={hasSbt === 0}
       >
         コメントを追加
       </Button>
@@ -63,6 +71,7 @@ const Editor = ({ onChange, onSubmit, submitting, value }: EditorProps) => (
 export type LectureCommentsListProps = {
   lectureApi: ApiSet<LectureResponse> & { execute: (id: number) => void };
   histroy: H.History;
+  hasSbt: number;
 };
 
 export const LectureCommentsList = (props: LectureCommentsListProps) => {
@@ -202,7 +211,9 @@ export const LectureCommentsList = (props: LectureCommentsListProps) => {
                           key={"lecture like button"}
                           type="primary"
                           disabled={
-                            count === 0 || item.commenter?.eoa === account
+                            count === 0 ||
+                            item.commenter?.eoa === account ||
+                            props.hasSbt === 0
                           }
                           onClick={() => handleAddFavos(item, count)}
                           size="small"
@@ -253,6 +264,7 @@ export const LectureCommentsList = (props: LectureCommentsListProps) => {
             }}
             submitting={postCommentApi.loading}
             value={commentForm.object.content ?? ""}
+            hasSbt={props.hasSbt}
           />
         }
       />

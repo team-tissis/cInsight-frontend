@@ -39,10 +39,10 @@ type Props = {
 export const MyPage = (props: Props) => {
   // const checkHasSbtApi = useCheckHasSbtApi();
   const [postForm, setPostForm] = useState<number>(0);
-  const [hasSbt, setHasSbt] = useState();
+  const [hasSbt, setHasSbt] = useState(0);
   useEffect(() => {
     (async function () {
-      setHasSbt(await fetchConnectedAccountInfo("gradeOf"));
+      setHasSbt(Number(await fetchConnectedAccountInfo("gradeOf")));
     })();
   }, [postForm]);
 
