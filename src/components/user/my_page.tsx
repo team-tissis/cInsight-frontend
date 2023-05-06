@@ -50,7 +50,7 @@ export const MyPage = (props: Props) => {
   //   checkHasSbtApi.execute();
   // }, []);
 
-  console.log({ hasSbt: hasSbt });
+  // console.log({ hasSbt: hasSbt });
 
   return (
     <PageHeader

@@ -207,8 +207,6 @@ const LecturePage = (props: Props) => {
     }
   };
 
-  console.log({ hasSbt: hasSbt });
-
   return (
     <PageHeader
       onBack={() => props.history.push("/lectures")}

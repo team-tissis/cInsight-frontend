@@ -15,6 +15,7 @@ import {
   fetchConnectedAccountReferralNum,
   fetchMonthlyDistributedFavoNum,
   refer,
+  setIcon,
 } from "api/fetch_sol/sbt";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
 import {
@@ -73,6 +74,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
   const [accountAddress, setAccountAddress] = useState<string | undefined>(
     undefined
   );
+  const [selectedTokenId, setSelectedTokenId] = useState<number | null>(null);
 
   const params = useParams<{ id: string }>();
 
@@ -181,8 +183,14 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
         open={openChangeSkinForm}
         form={changeSkinForm}
         onCancel={() => setOpenChangeSkinForm(false)}
-        // onOk={() => {
-        // }}
+        onOk={() => {
+          (async function () {
+            await setIcon(selectedTokenId);
+          })();
+          setOpenChangeSkinForm(false);
+        }}
+        selectedTokenId={selectedTokenId}
+        setSelectedTokenId={setSelectedTokenId}
       />
       <Space size={20} direction="vertical" style={{ width: "100%" }}>
         <ContentBlock

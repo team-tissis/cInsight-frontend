@@ -77,6 +77,12 @@ export type ReferralFormProps = ModalProps & {
   form: Form<ReferralForm>;
 };
 
+export type ChangeSkinFormProps = ModalProps & {
+  form: Form<ReferralForm>;
+  selectedTokenId: number | null;
+  setSelectedTokenId: (tokenId: number) => void;
+};
+
 export const ReferralForm = (props: ReferralFormProps) => {
   const { form, ...rest } = props;
   return (
@@ -90,25 +96,16 @@ export const ReferralForm = (props: ReferralFormProps) => {
   );
 };
 
-export const ChangeSkinForm = (props: ReferralFormProps) => {
+export const ChangeSkinForm = (props: ChangeSkinFormProps) => {
   const { form, ...rest } = props;
   const [skinNftList, setSkinNftList] = useState<number[]>([]);
-  const [selectedTokenId, setSelectedTokenId] = useState<number | null>(null);
 
   useEffect(() => {
     (async () => setSkinNftList(await fetchSkinNftList()))();
   }, []);
 
   return (
-    <Modal
-      title="スキン一覧"
-      {...rest}
-      onOk={() => {
-        (async function () {
-          await setIcon(selectedTokenId);
-        })();
-      }}
-    >
+    <Modal title="スキン一覧" {...rest}>
       {/** 
     <Modal title="スキン一覧" {...rest} onOk={() => 1}>
      */}
@@ -127,8 +124,8 @@ export const ChangeSkinForm = (props: ReferralFormProps) => {
           <List.Item key={item}>
             <ChangeSkinView
               token_id={item}
-              selectedTokenId={selectedTokenId}
-              setSelectedTokenId={setSelectedTokenId}
+              selectedTokenId={props.selectedTokenId}
+              setSelectedTokenId={props.setSelectedTokenId}
             />
           </List.Item>
         )}
