@@ -36,7 +36,7 @@ export const PurchaseMovieModal = (
               {moment(props.lecture?.fromDate).format("yyyy/MM/DD")}
             </Descriptions.Item>
             <Descriptions.Item label="主催者">
-              {props.lecture?.author?.firstName}
+              {props.lecture?.author?.name}
             </Descriptions.Item>
             <Descriptions.Item label="タグ">
               {LectureTagsView(props.lecture ?? {})}

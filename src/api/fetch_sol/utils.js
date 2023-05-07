@@ -18,7 +18,7 @@ export async function getSigner() {
     const signer = provider.getSigner(msgSender);
     return signer;
   } else {
-    const provider = new ethers.providers.Web3Provider(window.ethereum, 31337);
+    const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
     await provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
     return signer;
@@ -64,7 +64,9 @@ export function getAbi(contractName) {
 // contarctのアドレス，signer，インスタンスを取得
 export async function getContract(contractName, abi) {
   if (abi === undefined) abi = getAbi(contractName);
+  console.log({ contractName: contractName, abi: abi });
   const contractAddress = getContractAddress(contractName);
+  console.log({ コントラクトアドレス: contractAddress });
   const signer = await getSigner();
   const contract = new ethers.Contract(contractAddress, abi, signer);
   return { contractAddress, signer, contract };
@@ -82,4 +84,14 @@ export function createArrayFromString(input) {
   } else {
     return input.split("/").map((item) => item.trim());
   }
+}
+
+/**
+ *
+ * @param start
+ * @param end
+ * @returns [start, start+1, ..., end]
+ */
+export function createSequentialNumberArray(start, end) {
+  return [...Array(end - start + 1)].map((_, i) => i + start);
 }

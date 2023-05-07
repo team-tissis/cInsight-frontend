@@ -80,6 +80,7 @@ const FormView = (form: Form<Lecture>): JSX.Element => {
       <TextAreaField label="説明" form={form} attr="description" />
       <InputField form={form} label="資料URL" attr="materialUrl" />
       <InputField form={form} label="録画URL" attr="movieUrl" />
+      {/**
       <InputField
         type="number"
         form={form}
@@ -87,6 +88,7 @@ const FormView = (form: Form<Lecture>): JSX.Element => {
         attr="attendeeNum"
         min={0}
       />
+       */}
       <InputField
         type="number"
         form={form}

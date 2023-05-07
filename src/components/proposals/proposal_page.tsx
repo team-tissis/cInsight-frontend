@@ -251,8 +251,9 @@ const ProposalPage = (props: Props) => {
                   <div
                     style={{
                       fontSize: 20,
-                      whiteSpace: "pre-line",
+                      whiteSpace: "pre-wrap",
                       lineHeight: 1.2,
+                      wordBreak: "break-all",
                     }}
                   >
                     {proposer}
@@ -267,8 +268,9 @@ const ProposalPage = (props: Props) => {
                   <div
                     style={{
                       fontSize: 20,
-                      whiteSpace: "pre-line",
+                      whiteSpace: "pre-wrap",
                       lineHeight: 1.2,
+                      wordBreak: "break-all",
                     }}
                   >
                     {target}
@@ -280,8 +282,9 @@ const ProposalPage = (props: Props) => {
                   <div
                     style={{
                       fontSize: 20,
-                      whiteSpace: "pre-line",
+                      whiteSpace: "pre-wrap",
                       lineHeight: 1.2,
+                      wordBreak: "break-all",
                     }}
                   >
                     {value}
@@ -296,8 +299,9 @@ const ProposalPage = (props: Props) => {
                   <div
                     style={{
                       fontSize: 20,
-                      whiteSpace: "pre-line",
+                      whiteSpace: "pre-wrap",
                       lineHeight: 1.2,
+                      wordBreak: "break-all",
                     }}
                   >
                     {signature}
@@ -311,6 +315,7 @@ const ProposalPage = (props: Props) => {
                       fontSize: 20,
                       whiteSpace: "pre-line",
                       lineHeight: 1.2,
+                      wordBreak: "break-all",
                     }}
                   >
                     {data}

@@ -1,20 +1,11 @@
-import {
-  Button,
-  Col,
-  PageHeader,
-  Row,
-  Space,
-  Statistic,
-} from "antd";
+import { Button, Col, PageHeader, Row, Space, Statistic } from "antd";
 import { ContentBlock } from "components/shared/content_block";
-import {
-  LikeOutlined,
-} from "@ant-design/icons";
+import { LikeOutlined } from "@ant-design/icons";
 import { UserProfileView } from "./user_view";
 import { User } from "entities/user";
 import { StatistcsLikeBlock } from "components/shared/statistics_like_block";
 import { useContext, useEffect, useState } from "react";
-import { EditUserForm, ReferralForm } from "./user_form";
+import { ChangeSkinForm, EditUserForm, ReferralForm } from "./user_form";
 import { useEffectSkipFirst, useForm } from "utils/hooks";
 import * as H from "history";
 import { useParams, withRouter } from "react-router";
@@ -24,6 +15,7 @@ import {
   fetchConnectedAccountReferralNum,
   fetchMonthlyDistributedFavoNum,
   refer,
+  setIcon,
 } from "api/fetch_sol/sbt";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
 import {
@@ -62,6 +54,8 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
   const editUserForm = useForm<User>({});
   const [openReferralForm, setOpenRefaralForm] = useState(false);
   const referralForm = useForm<ReferralForm>({});
+  const [openChangeSkinForm, setOpenChangeSkinForm] = useState(false);
+  const changeSkinForm = useForm({});
 
   const [url, setUrl] = useState<string | undefined>();
   const [favo, setFavo] = useState();
@@ -80,6 +74,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
   const [accountAddress, setAccountAddress] = useState<string | undefined>(
     undefined
   );
+  const [selectedTokenId, setSelectedTokenId] = useState<number | null>(null);
 
   const params = useParams<{ id: string }>();
 
@@ -101,7 +96,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
       // マイページのとき
       userApiByAccountAddress.execute(accountAddress);
       (async function () {
-        setUrl(await fetchAccountImageUrl())
+        setUrl(await fetchAccountImageUrl());
         setFavo(await fetchConnectedAccountInfo("favoOf"));
         setGrade(await fetchConnectedAccountInfo("gradeOf"));
         setMaki(await fetchConnectedAccountInfo("makiOf"));
@@ -126,7 +121,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
     if (userApi.isSuccess() && !props.isMyPage) {
       // この部分が実行されるのは、マイページではないときのみ
       (async function () {
-        setUrl(await fetchAccountImageUrl(userApi.response.user.eoa))
+        setUrl(await fetchAccountImageUrl(userApi.response.user.eoa));
         setFavo(
           await fetchConnectedAccountInfo("favoOf", userApi.response.user.eoa)
         );
@@ -184,6 +179,19 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
           refer(referralForm.object.walletAddress);
         }}
       />
+      <ChangeSkinForm
+        open={openChangeSkinForm}
+        form={changeSkinForm}
+        onCancel={() => setOpenChangeSkinForm(false)}
+        onOk={() => {
+          (async function () {
+            await setIcon(selectedTokenId);
+          })();
+          setOpenChangeSkinForm(false);
+        }}
+        selectedTokenId={selectedTokenId}
+        setSelectedTokenId={setSelectedTokenId}
+      />
       <Space size={20} direction="vertical" style={{ width: "100%" }}>
         <ContentBlock
           title="基本情報"
@@ -202,7 +210,9 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
             props.isMyPage
               ? userApiByAccountAddress.response.user
               : userApi.response.user,
-            url
+            setOpenChangeSkinForm,
+            url,
+            props.isMyPage
           )}
         </ContentBlock>
         <ContentBlock title="SBT INFO">
@@ -235,7 +245,7 @@ export const UserPageContent = (props: UserPageContentProps): JSX.Element => {
               </div> */}
             </Col>
             <Col span={8}>
-              <StatistcsLikeBlock title="今月のいいね付与数">
+              <StatistcsLikeBlock title="今月のいいね消費数">
                 <Space direction="vertical">
                   <Space style={{ alignItems: "center" }}>
                     <LikeOutlined

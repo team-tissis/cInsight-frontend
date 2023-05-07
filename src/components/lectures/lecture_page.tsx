@@ -7,26 +7,32 @@ import { useContext, useEffect, useState } from "react";
 import {
   useDeleteLectureApi,
   useFetchLectureApi,
+  useFavoLectureApi,
   usePutLectureApi,
 } from "api/lecture";
-import { LectureCommetnsList } from "components/comments/comments";
+import { useFetchLectureCustomerApi } from "api/lecture_customer";
+import { LectureCommentsList } from "components/comments/comments";
 import {
   Alert,
   Button,
   Card,
   Col,
   Descriptions,
+  Dropdown,
   notification,
+  InputNumber,
   PageHeader,
   Popconfirm,
   Progress,
   Row,
+  Select,
   Skeleton,
   Space,
   Statistic,
   Tag,
   Typography,
 } from "antd";
+import { valueType } from "antd/lib/statistic/utils";
 import { LikeOutlined, LockOutlined, UnlockOutlined } from "@ant-design/icons";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import { GlobalStateContext } from "contexts/global_state_context";
@@ -46,19 +52,30 @@ import { sleep } from "utils/util";
 import { EditLectureForm } from "./lecture_form";
 import { useFetchCommentsApi } from "api/comment";
 import { CommentSearchForm } from "entities/comment";
-import { addFavos } from "api/fetch_sol/sbt";
+import { addFavos, fetchConnectedAccountInfo } from "api/fetch_sol/sbt";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
-import { usePostFavoriteApi, FavoriteForm } from "api/favorite";
+import {
+  usePostLectureCustomerApi,
+  LectureJoinInForm,
+} from "api/lecture_customer";
 import { useFetchUserByAccountAddressApi } from "api/user";
+
+const { Option } = Select;
 
 type Props = {
   history: H.History;
 };
 
+type FavoriteLectureForm = {
+  lecture_id?: string;
+  eoa?: string;
+  favo_newly_added?: number;
+};
+
 const LecturePage = (props: Props) => {
-  const FAVO_AMOUNT = 1;
   const params = useParams<{ id: string }>();
   const lectureApi = useFetchLectureApi();
+  const lectureCustomerApi = useFetchLectureCustomerApi();
   const searchForm = useForm<CommentSearchForm>({});
   const globalState = useContext(GlobalStateContext);
   const [movieVisible, setMovieVisible] = useState(false);
@@ -67,7 +84,8 @@ const LecturePage = (props: Props) => {
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
   const [applyStatus, setApplyStatus] = useState<
     "open" | "allplyed" | "closed"
-  >("allplyed");
+  >("open");
+  const [hasSbt, setHasSbt] = useState(0);
   const [forceReloading, setForceReloading] = useState(0);
   const editLectureForm = useForm<Lecture>({});
   const putLectureApi = usePutLectureApi();
@@ -77,21 +95,28 @@ const LecturePage = (props: Props) => {
   const [accountAddress, setAccountAddress] = useState<string | undefined>(
     undefined
   );
-  const postFavoriteApi = usePostFavoriteApi();
+  const [count, setCount] = useState<number>(0);
+  const [remainFavo, setRemainFavo] = useState<number>(0);
+
+  const favoLectureApi = useFavoLectureApi();
+  const postLectureCustomerApi = usePostLectureCustomerApi();
 
   useEffect(() => {
+    // 勉強会の参加を示したユーザーを取得
     lectureApi.execute(Number(params.id));
+    lectureCustomerApi.execute(params.id);
   }, [forceReloading]);
 
   useEffect(() => {
     // ToDo1: アカウントアドレスを取得
     (async () => {
       const _accountAddress = await getCurrentAccountAddress();
-      console.log({ 自分のアカウントアドレス: _accountAddress });
       setAccountAddress(_accountAddress);
+      setRemainFavo(Number(await fetchConnectedAccountInfo("remainFavoNumOf")));
+      setHasSbt(Number(await fetchConnectedAccountInfo("gradeOf")));
       userApiByAccountAddress.execute(_accountAddress!);
     })();
-  }, []);
+  }, [forceReloading]);
 
   useEffectSkipFirst(() => {
     globalState.setLoading(lectureApi.loading);
@@ -116,6 +141,10 @@ const LecturePage = (props: Props) => {
     }
   }, [deleteLectureApi.loading]);
 
+  useEffect(() => {
+    console.log("fetching favos...", remainFavo);
+  }, [remainFavo]);
+
   const lecture = (): Lecture | undefined => {
     return lectureApi.response?.lecture;
   };
@@ -125,18 +154,57 @@ const LecturePage = (props: Props) => {
     editLectureForm.set(() => lecture() ?? {});
   };
 
-  const handleAddFavos = () => {
+  const handleAddFavos = async (favoNum: number) => {
     // setした後にDOMの読み込みが走ってからでないと、値の更新はされない
-    const formVal: FavoriteForm = {
+    console.log({ favoNum: favoNum });
+    const formVal: FavoriteLectureForm = {
+      lecture_id: lecture()?.id,
+      // eoa: userApiByAccountAddress.response.user.eoa,
+      favo_newly_added: favoNum,
+    };
+    favoLectureApi.execute(formVal);
+    // スマコンへのいいねの反映
+    await addFavos(lecture()?.author?.eoa, favoNum);
+    // 再レンダリング
+    setForceReloading((prev) => prev + 1);
+  };
+
+  // 勉強会の参加登録
+  const handleJoinInLecture = () => {
+    // setした後にDOMの読み込みが走ってからでないと、値の更新はされない
+    const formVal: LectureJoinInForm = {
       lecture_id: lecture()?.id,
       eoa: userApiByAccountAddress.response.user.eoa,
     };
-    // DBへのいいねの反映
-    postFavoriteApi.execute(formVal);
-    // スマコンへのいいねの反映
-    addFavos(lecture()?.author?.eoa, FAVO_AMOUNT);
+    // DBへの反映
+    postLectureCustomerApi.execute(formVal);
     // 再レンダリング
     setForceReloading((prev) => prev + 1);
+  };
+
+  // const handleStep = (
+  //   _: number,
+  //   info: { offset: valueType; type: "up" | "down" }
+  // ) => {
+  //   console.log({ remainFavo: remainFavo });
+  //   console.log({ count: count });
+  //   console.log({ info_type: info.type });
+  //   if (info.type === "up") {
+  //     setCount((prev) => prev + 1);
+  //   } else {
+  //     setCount((prev) => prev - 1);
+  //   }
+  //   // この時点では更新されないが、問題なし。
+  //   // console.log({ count: count });
+  // };
+
+  const handleChange = (value: number | null) => {
+    console.log({ value: value });
+    if (value == null) {
+      setCount(0);
+    } else {
+      setCount(value);
+    }
   };
 
   return (
@@ -232,7 +300,7 @@ const LecturePage = (props: Props) => {
         <ContentBlock title="基本情報">
           <Descriptions column={2}>
             <Descriptions.Item label="主催者">
-              {lecture()?.author?.firstName}
+              {lecture()?.author?.name}
             </Descriptions.Item>
             <Descriptions.Item label="タグ">
               {LectureTagsView(lecture() ?? {})}
@@ -321,35 +389,68 @@ const LecturePage = (props: Props) => {
                     <LikeOutlined
                       style={{
                         verticalAlign: "middle",
+                        marginRight: "5px",
                       }}
                     />
                   }
                 />
-                <Button
-                  key={"lecture like button"}
-                  type="primary"
-                  disabled={
-                    getLectureStatus(lecture() ?? {}) !== "End" ||
-                    lecture()?.author?.eoa == accountAddress
-                  }
-                  onClick={() => handleAddFavos()}
-                >
-                  勉強会にいいねを押す
-                </Button>
+                <div>
+                  {/**
+                  この勉強会に
+                  <span
+                    style={{ display: "inline-block", width: "10px" }}
+                  ></span>
+                   */}
+                  <InputNumber
+                    min={0}
+                    max={remainFavo}
+                    defaultValue={0}
+                    onChange={handleChange}
+                    style={{ width: "50px" }}
+                  />
+                  <Button
+                    key={"lecture like button"}
+                    type="primary"
+                    disabled={
+                      getLectureStatus(lecture() ?? {}) !== "End" ||
+                      lecture()?.author?.eoa == accountAddress ||
+                      count === 0 ||
+                      hasSbt === 0
+                    }
+                    onClick={async () => handleAddFavos(count)}
+                  >
+                    {/**
+                    <LikeOutlined
+                      style={{
+                        verticalAlign: "middle",
+                      }}
+                    />
+                   */}
+                    いいねを送る
+                  </Button>
+                  {/**
+                  <div>今月はあと{remainFavo}回いいねを押せます</div>
+                   */}
+                </div>
               </Space>
             </Col>
             <Col span={8}>
               <Space direction="vertical">
                 <Statistic
-                  title="参加人数/参加可能枠"
-                  value={lecture()?.attendeeNum}
+                  title="参加人数 / 参加可能枠"
+                  // value={lecture()?.attendeeNum}
+                  value={lectureCustomerApi.response.results.length}
                   suffix={`/ ${lecture()?.attendeeMaxNum}`}
                 />
                 {(() => {
                   switch (applyStatus) {
                     case "open":
                       return (
-                        <Button key={"lecture apply button"} type="ghost">
+                        <Button
+                          key={"lecture apply button"}
+                          type="ghost"
+                          onClick={() => handleJoinInLecture()}
+                        >
                           参加登録
                         </Button>
                       );
@@ -384,7 +485,6 @@ const LecturePage = (props: Props) => {
                       );
                   }
                 })()}
-                ,
               </Space>
             </Col>
             <Col span={8}>
@@ -397,9 +497,10 @@ const LecturePage = (props: Props) => {
           </Row>
         </ContentBlock>
         <ContentBlock title="コメント">
-          <LectureCommetnsList
+          <LectureCommentsList
             histroy={props.history}
             lectureApi={lectureApi}
+            hasSbt={hasSbt}
           />
         </ContentBlock>
       </Space>

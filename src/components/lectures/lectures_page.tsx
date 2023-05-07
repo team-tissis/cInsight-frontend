@@ -28,6 +28,8 @@ import { LecturesCalender } from "./lectures_calender";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
 import { useFetchUserByAccountAddressApi } from "api/user";
 
+import {format} from 'date-fns'
+
 type Props = {
   history: H.History;
 };
@@ -89,6 +91,16 @@ const LecturesPage = (props: Props): JSX.Element => {
         "authorId",
         userApiByAccountAddress.response.user.id
       );
+      // カレンダーの開始と終了を本日の午前9:00・10:00にする
+      const defaultStartAt = format(new Date(), "yyyy-MM-dd 09:00:00+09:00")
+      const defaultFinishAt = format(new Date(), "yyyy-MM-dd 10:00:00+09:00")
+      newLectureForm.set({
+        authorId: userApiByAccountAddress.response.user.id,
+        toDate: defaultStartAt,
+        fromDate: defaultFinishAt,
+        attendeeNum: 0,
+        attendeeMaxNum: 20
+      });
     }
   }, [userApiByAccountAddress.loading]);
 
