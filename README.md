@@ -25,7 +25,7 @@ Create `.env.production` file and write the following it.
 ```bash
 HTTPS=True
 REACT_APP_API_HOST=https://(public IP of EC2 instance)
-REACT_APP_TOKEN=(Token issured by backend server)
+REACT_APP_TOKEN=(Token issued by backend server)
 ```
 Then, You can run
 ```bash
