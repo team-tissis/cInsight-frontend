@@ -25,7 +25,6 @@ type CommentsResponse = PagingResponse & {
 export function useFetchCommentsApi(
   searchForm: Form<CommentSearchForm>
 ): IndexApiSet<CommentsResponse> & { execute: () => void } {
-  const apiPath = "comments/";
   const api = useIndexApi<CommentsResponse>(new HttpClient(), {
     initialState: { page: 1, perPage: 50 },
     initialResponse: { count: 0, results: [] },

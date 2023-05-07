@@ -95,6 +95,7 @@ const LecturesPage = (props: Props): JSX.Element => {
       const defaultStartAt = format(new Date(), "yyyy-MM-dd 09:00:00+09:00")
       const defaultFinishAt = format(new Date(), "yyyy-MM-dd 10:00:00+09:00")
       newLectureForm.set({
+        authorId: userApiByAccountAddress.response.user.id,
         toDate: defaultStartAt,
         fromDate: defaultFinishAt,
         attendeeNum: 0,

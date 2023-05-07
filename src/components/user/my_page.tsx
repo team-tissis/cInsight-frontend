@@ -30,6 +30,7 @@ import { withRouter } from "react-router";
 import { mint, fetchConnectedAccountInfo } from "api/fetch_sol/sbt";
 import { getCurrentAccountAddress } from "api/fetch_sol/utils";
 import { usePostUserApi } from "api/user";
+import { has } from "lodash";
 
 type Props = {
   history: H.History;
@@ -38,16 +39,18 @@ type Props = {
 export const MyPage = (props: Props) => {
   // const checkHasSbtApi = useCheckHasSbtApi();
   const [postForm, setPostForm] = useState<number>(0);
-  const [hasSbt, setHasSbt] = useState();
+  const [hasSbt, setHasSbt] = useState(0);
   useEffect(() => {
     (async function () {
-      setHasSbt(await fetchConnectedAccountInfo("gradeOf"));
+      setHasSbt(Number(await fetchConnectedAccountInfo("gradeOf")));
     })();
   }, [postForm]);
 
   // useEffect(() => {
   //   checkHasSbtApi.execute();
   // }, []);
+
+  // console.log({ hasSbt: hasSbt });
 
   return (
     <PageHeader

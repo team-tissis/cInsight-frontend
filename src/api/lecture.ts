@@ -14,10 +14,6 @@ import { Form, useEffectSkipFirst } from "utils/hooks";
 import { HttpClient } from "../utils/network/axios";
 import { PagingResponse } from "entities";
 import { Lecture, LectureForm, LectureSearchForm } from "entities/lecture";
-import { CookieManager } from "utils/cookie_manager";
-import { comments, lectureData } from "sample_data/lecture";
-import { sleep } from "utils/util";
-import { message, notification } from "antd";
 
 type LecturesResponse = PagingResponse & {
   results: Lecture[];
@@ -130,6 +126,29 @@ export function useDeleteLectureApi(): ApiSet<BaseResponse> & {
     const apiPath = `lectures/${id}/`;
     api.execute(apiPath);
   };
+  return {
+    ...api,
+    isSuccess: () => !api.loading && !api.isError,
+    execute: execute,
+  };
+}
+
+export function useFavoLectureApi(): ApiSet<BaseResponse> & {
+  execute: (object: Lecture) => void;
+} {
+  const api = usePutApi<BaseResponse, LectureForm>(
+    new HttpClient(),
+    {
+      initialResponse: {},
+    },
+    { formatJson: true }
+  );
+
+  const execute = (object: Lecture) => {
+    const apiPath = `lectures/favo/`;
+    api.execute(apiPath, object);
+  };
+
   return {
     ...api,
     isSuccess: () => !api.loading && !api.isError,

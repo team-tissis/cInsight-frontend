@@ -64,6 +64,7 @@ export function getAbi(contractName) {
 // contarctのアドレス，signer，インスタンスを取得
 export async function getContract(contractName, abi) {
   if (abi === undefined) abi = getAbi(contractName);
+  console.log({ contractName: contractName, abi: abi });
   const contractAddress = getContractAddress(contractName);
   console.log({ コントラクトアドレス: contractAddress });
   const signer = await getSigner();
@@ -83,4 +84,14 @@ export function createArrayFromString(input) {
   } else {
     return input.split("/").map((item) => item.trim());
   }
+}
+
+/**
+ *
+ * @param start
+ * @param end
+ * @returns [start, start+1, ..., end]
+ */
+export function createSequentialNumberArray(start, end) {
+  return [...Array(end - start + 1)].map((_, i) => i + start);
 }
